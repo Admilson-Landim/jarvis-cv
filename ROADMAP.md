@@ -35,7 +35,9 @@ Cada fase termina com algo que se pode testar no Fedora.
 ## Fase 3.5 — Integração com o Fedora
 - [x] Serviço systemd do utilizador (`arranque.sh`): arranca no login, reinicia se falhar
 - [x] Só uma instância a ouvir o microfone; notificação do GNOME quando fica pronto
-- [ ] Teste real: reiniciar a sessão e chamar o Truta sem abrir o terminal
+- [x] Serviço instalado e a funcionar no PC do Landim (palmas + "Abre o Github" sem terminal)
+- [ ] Teste real: terminar a sessão, voltar a entrar e o Truta arrancar sozinho
+- [x] IA gratuita instável: "Um momento" se demorar, última tentativa, e plano B local
 
 ## Fase 4 — Smart TV (TOP VISION)
 - [ ] Descobrir o sistema da TV e como controlá-la pela rede

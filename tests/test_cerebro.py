@@ -168,3 +168,28 @@ def test_conversao_para_16k():
     t16 = np.arange(16000) / 16000
     assert np.corrcoef(convertido, np.sin(2 * np.pi * 440 * t16))[0, 1] > 0.98
     assert ouvido.para_16k(onda[:44100], 44100).size == 16000
+
+
+def test_ultima_tentativa_com_mais_tempo_e_falha_marcada(monkeypatch):
+    import urllib.error
+    tempos = []
+
+    def falso_post(url, cabecalhos, corpo, timeout=30):
+        tempos.append(timeout)
+        raise urllib.error.URLError("timed out")
+
+    monkeypatch.setattr(cerebro, "_post", falso_post)
+    monkeypatch.setattr(cerebro, "IA", "gemini")
+    monkeypatch.setattr(cerebro, "PAUSA_ULTIMA_TENTATIVA", 0)
+    monkeypatch.setenv("GEMINI_API_KEY", "teste")
+    r = cerebro.Cerebro().pensar("olá")
+    assert r["falhou"] and r["acoes"] == []
+    n_modelos = 1 + len([m for m in cerebro.MODELOS_RESERVA if m != cerebro.MODELO_IA])
+    assert len(tempos) == n_modelos + 1
+    assert tempos[-1] == cerebro.TEMPO_IA * 2
+
+
+def test_pesquise_e_reconhecido_localmente():
+    from comandos import interpretar
+    assert interpretar("Pesquise por praias do Tarrafal").nome == "pesquisar"
+    assert interpretar("procure receitas de cachupa").nome == "pesquisar"

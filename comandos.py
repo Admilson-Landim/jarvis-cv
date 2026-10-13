@@ -102,7 +102,7 @@ def _cmd_bom_dia(t: str) -> Optional[Comando]:
 
 
 def _cmd_pesquisar(t: str) -> Optional[Comando]:
-    m = re.search(r"\b(?:pesquisa|pesquisar|procura|procurar|busca|buscar)\b(?: por| sobre)? (.+)", t)
+    m = re.search(r"\b(?:pesquisa|pesquisar|pesquise|procura|procurar|procure|busca|buscar|busque)\b(?: por| sobre)? (.+)", t)
     if m:
         termo = m.group(1).strip()
         url = "https://www.google.com/search?q=" + urllib.parse.quote(termo)

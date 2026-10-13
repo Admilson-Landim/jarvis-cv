@@ -157,7 +157,8 @@ def _gravar_estado(**valores) -> None:
 
 
 ultimo_modelo = _ler_estado().get("modelo", "")
-ERROS_FATAIS = (400, 401, 403)  # chave ou pedido inválido: outro modelo não resolve
+ERROS_FATAIS = (400, 401, 403)
+PAUSA_ULTIMA_TENTATIVA = 2  # s  # chave ou pedido inválido: outro modelo não resolve
 
 
 def _gemini(historico: list) -> str:
@@ -172,14 +173,19 @@ def _gemini(historico: list) -> str:
     # Começa pelo último modelo que funcionou (evita esperar pelos que estão ocupados)
     ordem = [MODELO_IA] + [m for m in MODELOS_RESERVA if m != MODELO_IA]
     modelos = ([ultimo_modelo] if ultimo_modelo in ordem else []) + [m for m in ordem if m != ultimo_modelo]
+    # Última tentativa: o primeiro modelo outra vez, com mais paciência
+    tentativas = [(m, TEMPO_IA) for m in modelos] + [(modelos[0], TEMPO_IA * 2)]
     ultimo_erro = None
-    for modelo in modelos:
+    for i, (modelo, espera) in enumerate(tentativas):
+        if i == len(tentativas) - 1:
+            print(f"  (todos ocupados; última tentativa com {modelo}...)")
+            time.sleep(PAUSA_ULTIMA_TENTATIVA)
         try:
             dados = _post(
                 f"https://generativelanguage.googleapis.com/v1beta/models/{modelo}:generateContent",
                 {"x-goog-api-key": os.environ["GEMINI_API_KEY"]},
                 corpo,
-                timeout=TEMPO_IA,
+                timeout=espera,
             )
         except urllib.error.HTTPError as erro:
             if erro.code in ERROS_FATAIS:
@@ -248,14 +254,14 @@ class Cerebro:
             print(f"  (erro da IA {erro.code}: {detalhe})")
             self.historico.pop()
             if erro.code == 429:
-                return {"resposta": "Atingi o limite gratuito da IA. Tenta daqui a pouco.", "acoes": []}
+                return {"resposta": "Atingi o limite gratuito da IA. Tenta daqui a pouco.", "acoes": [], "falhou": True}
             if erro.code >= 500 or erro.code == 404:
-                return {"resposta": "Os servidores da IA estão ocupados. Tenta daqui a pouco.", "acoes": []}
-            return {"resposta": "A IA recusou o pedido. Vê a mensagem no terminal.", "acoes": []}
+                return {"resposta": "Os servidores da IA estão ocupados. Tenta daqui a pouco.", "acoes": [], "falhou": True}
+            return {"resposta": "A IA recusou o pedido. Vê a mensagem no terminal.", "acoes": [], "falhou": True}
         except Exception as erro:
             print(f"  (sem ligação à IA: {erro})")
             self.historico.pop()
-            return {"resposta": "Não consegui falar com o meu cérebro na nuvem.", "acoes": []}
+            return {"resposta": "Os servidores da IA estão ocupados agora. Tenta daqui a pouco.", "acoes": [], "falhou": True}
 
         resultado = analisar(bruto)
         self.historico.append({"role": "assistant", "content": json.dumps(resultado, ensure_ascii=False)})

@@ -14,6 +14,7 @@ import fcntl
 import queue
 import shutil
 import subprocess
+import threading
 import time
 from pathlib import Path
 
@@ -34,31 +35,54 @@ BLOCO = 1536         # ~32 ms a 48 kHz
 CEREBRO = cerebro.Cerebro() if cerebro.disponivel() else None
 
 
+AVISO_APOS = 4.0  # s: se a IA demorar mais do que isto, o assistente avisa que está a pensar
+
+
+def com_aviso(funcao, *args):
+    """Corre funcao(*args); se demorar, diz "Um momento" para não ficar em silêncio."""
+    aviso = threading.Timer(AVISO_APOS, voz.falar, args=(f"Um momento, {NOME}.",))
+    aviso.daemon = True
+    aviso.start()
+    try:
+        return funcao(*args)
+    finally:
+        aviso.cancel()
+        while voz.a_falar.is_set():  # não falar por cima do "um momento"
+            time.sleep(0.05)
+
+
+def executar_resultado(resultado: dict) -> bool:
+    sair = False
+    for acao in resultado["acoes"]:
+        print(f"     ação: {acao}")
+        if acao["tipo"] == "sair":
+            sair = True
+        else:
+            executar_acao(acao)
+    if resultado["resposta"]:
+        print(f"  {ASSISTENTE}: {resultado['resposta']}")
+        voz.falar(resultado["resposta"], esperar=True)
+    return not sair
+
+
 def tratar(texto: str) -> bool:
     """Interpreta e executa. Devolve False se for para sair."""
     cmd = interpretar(texto)
 
     if cmd.nome == "bom_dia":
         print("  -> ☀️ resumo do dia")
-        texto_resumo = resumo.gerar(CEREBRO)
+        texto_resumo = com_aviso(resumo.gerar, CEREBRO)
         print(f"  {ASSISTENTE}: {texto_resumo}")
         voz.falar(texto_resumo, esperar=True)
         return True
 
     if CEREBRO and precisa_do_cerebro(texto, cmd):
         print("  -> 🧠 a pensar...")
-        resultado = CEREBRO.pensar(texto)
-        sair = False
-        for acao in resultado["acoes"]:
-            print(f"     ação: {acao}")
-            if acao["tipo"] == "sair":
-                sair = True
-            else:
-                executar_acao(acao)
-        if resultado["resposta"]:
-            print(f"  {ASSISTENTE}: {resultado['resposta']}")
-            voz.falar(resultado["resposta"], esperar=True)
-        return not sair
+        resultado = com_aviso(CEREBRO.pensar, texto)
+        if resultado.get("falhou") and cmd.nome != "desconhecido":
+            print(f"  (IA em baixo; faço o que sei sem ela: {cmd.nome})")
+        else:
+            return executar_resultado(resultado)
 
     print(f"  -> {cmd.nome}")
     cmd.executar()
