@@ -1,0 +1,104 @@
+#!/usr/bin/env python3
+"""
+JARVIS - Fase 1: duas palmas -> abre o ambiente de trabalho e cumprimenta.
+
+Instalação no Fedora:
+    sudo dnf install portaudio speech-dispatcher espeak-ng
+    pip install --user sounddevice numpy
+
+Uso:
+    python3 jarvis_palmas.py --calibrar   # mostra o volume para afinar o LIMIAR
+    python3 jarvis_palmas.py              # modo normal
+"""
+
+import argparse
+import queue
+import shutil
+import subprocess
+import time
+
+import numpy as np
+import sounddevice as sd
+
+# --- Afinação ---------------------------------------------------------------
+TAXA = 44100          # amostras por segundo
+BLOCO = 1024          # ~23 ms por bloco
+LIMIAR = 0.35         # pico mínimo (0..1) para contar como palma -> afina com --calibrar
+INTERVALO_MIN = 0.15  # s; picos mais próximos que isto = a mesma palma
+INTERVALO_MAX = 0.80  # s; distância máxima entre a 1ª e a 2ª palma
+PAUSA = 3.0           # s; tempo de espera depois de disparar
+
+# --- Ações ------------------------------------------------------------------
+def falar(texto: str) -> None:
+    if shutil.which("spd-say"):
+        subprocess.Popen(["spd-say", "-l", "pt", "-r", "-10", texto])
+    elif shutil.which("espeak-ng"):
+        subprocess.Popen(["espeak-ng", "-v", "pt", texto])
+    else:
+        print(f"[JARVIS] {texto}")
+
+
+def abrir(*cmd: str) -> None:
+    if shutil.which(cmd[0]):
+        subprocess.Popen(cmd, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    else:
+        print(f"  (não encontrei '{cmd[0]}', ignorado)")
+
+
+def modo_trabalho() -> None:
+    hora = time.localtime().tm_hour
+    saudacao = "Bom dia" if hora < 12 else "Boa tarde" if hora < 19 else "Boa noite"
+    falar(f"{saudacao}, Admilson. A preparar o ambiente de trabalho.")
+    abrir("code")
+    abrir("gnome-terminal")
+    abrir("xdg-open", "https://github.com/Admilson-Landim")
+
+
+# --- Deteção ----------------------------------------------------------------
+def main() -> None:
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--calibrar", action="store_true",
+                        help="mostra o nível de som para escolher o LIMIAR")
+    args = parser.parse_args()
+
+    eventos: "queue.Queue[str]" = queue.Queue()
+    estado = {"ultimo_pico": 0.0, "palmas": [], "bloqueado_ate": 0.0}
+
+    def callback(indata, frames, time_info, status):
+        pico = float(np.max(np.abs(indata)))
+
+        if args.calibrar:
+            barra = "#" * int(pico * 50)
+            print(f"\r{pico:0.2f} {barra:<50}", end="", flush=True)
+            return
+
+        agora = time.monotonic()
+        if agora < estado["bloqueado_ate"] or pico < LIMIAR:
+            return
+        if agora - estado["ultimo_pico"] < INTERVALO_MIN:
+            return  # ainda é a mesma palma
+        estado["ultimo_pico"] = agora
+
+        palmas = [t for t in estado["palmas"] if agora - t <= INTERVALO_MAX]
+        palmas.append(agora)
+        estado["palmas"] = palmas
+
+        if len(palmas) >= 2:
+            estado["palmas"] = []
+            estado["bloqueado_ate"] = agora + PAUSA
+            eventos.put("duas_palmas")
+
+    print("JARVIS à escuta... (Ctrl+C para sair)")
+    with sd.InputStream(samplerate=TAXA, blocksize=BLOCO, channels=1, callback=callback):
+        try:
+            while True:
+                evento = eventos.get()
+                if evento == "duas_palmas":
+                    print("👏👏 detetadas!")
+                    modo_trabalho()
+        except KeyboardInterrupt:
+            print("\nAté já, Admilson.")
+
+
+if __name__ == "__main__":
+    main()
