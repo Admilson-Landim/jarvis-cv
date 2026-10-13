@@ -18,7 +18,7 @@ import urllib.error
 import urllib.request
 from pathlib import Path
 
-from config import IA, MODELO_IA, MODELOS_RESERVA, NOME
+from config import IA, MODELO_IA, MODELOS_RESERVA, NOME, TEMPO_IA
 
 PASTA = Path(__file__).parent
 
@@ -53,6 +53,8 @@ Regras:
 - Pedidos compostos ("abre X e pesquisa Y") viram várias ações, pela ordem.
 - Não repitas: "pesquisar_youtube" já abre o YouTube, por isso não juntes "abrir_site" do YouTube.
 - Se pedirem para escolheres um tema ("algo interessante"), escolhe tu um termo concreto.
+- Perguntas de conhecimento ("quem foi...", "o que é...") respondes só com a voz, SEM ações.
+  Só pesquisas ou abres algo quando ele pedir explicitamente.
 - Se pedirem algo que não está na lista, diz com simpatia que ainda não sabes fazer isso."""
 
 
@@ -127,12 +129,12 @@ def disponivel() -> bool:
 
 
 # --- Pedidos às IAs ----------------------------------------------------------
-def _post(url: str, cabecalhos: dict, corpo: dict) -> dict:
+def _post(url: str, cabecalhos: dict, corpo: dict, timeout: float = 30) -> dict:
     pedido = urllib.request.Request(
         url, data=json.dumps(corpo).encode(), method="POST",
         headers={"Content-Type": "application/json", **cabecalhos},
     )
-    with urllib.request.urlopen(pedido, timeout=30) as r:
+    with urllib.request.urlopen(pedido, timeout=timeout) as r:
         return json.loads(r.read())
 
 
@@ -149,7 +151,9 @@ def _gemini(historico: list) -> str:
         "contents": contents,
         "generationConfig": {"responseMimeType": "application/json", "temperature": 0.7},
     }
-    modelos = [MODELO_IA] + [m for m in MODELOS_RESERVA if m != MODELO_IA]
+    # Começa pelo último modelo que funcionou (evita esperar pelos que estão ocupados)
+    ordem = [MODELO_IA] + [m for m in MODELOS_RESERVA if m != MODELO_IA]
+    modelos = ([ultimo_modelo] if ultimo_modelo in ordem else []) + [m for m in ordem if m != ultimo_modelo]
     ultimo_erro = None
     for modelo in modelos:
         try:
@@ -157,6 +161,7 @@ def _gemini(historico: list) -> str:
                 f"https://generativelanguage.googleapis.com/v1beta/models/{modelo}:generateContent",
                 {"x-goog-api-key": os.environ["GEMINI_API_KEY"]},
                 corpo,
+                timeout=TEMPO_IA,
             )
         except urllib.error.HTTPError as erro:
             if erro.code in ERROS_FATAIS:
@@ -168,6 +173,8 @@ def _gemini(historico: list) -> str:
             print(f"  ({modelo} não respondeu a tempo, a tentar outro...)")
             ultimo_erro = erro
             continue
+        if modelo != ultimo_modelo:
+            print(f"  (a usar {modelo})")
         ultimo_modelo = modelo
         partes = dados["candidates"][0]["content"]["parts"]
         return "".join(p.get("text", "") for p in partes)

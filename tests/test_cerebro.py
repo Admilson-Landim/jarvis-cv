@@ -61,7 +61,7 @@ def test_executar_acoes(monkeypatch):
 def test_gemini_formato_do_pedido(monkeypatch):
     enviado = {}
 
-    def falso_post(url, cabecalhos, corpo):
+    def falso_post(url, cabecalhos, corpo, timeout=30):
         enviado.update(url=url, cabecalhos=cabecalhos, corpo=corpo)
         return {"candidates": [{"content": {"parts": [{"text": '{"resposta": "Olá", "acoes": []}'}]}}]}
 
@@ -94,7 +94,7 @@ def test_gemini_tenta_outro_modelo_quando_ocupado(monkeypatch):
     import urllib.error
     tentados = []
 
-    def falso_post(url, cabecalhos, corpo):
+    def falso_post(url, cabecalhos, corpo, timeout=30):
         modelo = url.split("/models/")[1].split(":")[0]
         tentados.append(modelo)
         if len(tentados) < 3:
@@ -114,7 +114,7 @@ def test_gemini_chave_invalida_nao_insiste(monkeypatch):
     import urllib.error
     tentados = []
 
-    def falso_post(url, cabecalhos, corpo):
+    def falso_post(url, cabecalhos, corpo, timeout=30):
         tentados.append(url)
         raise urllib.error.HTTPError(url, 400, "x", {}, io.BytesIO(b"API key not valid"))
 
@@ -123,3 +123,18 @@ def test_gemini_chave_invalida_nao_insiste(monkeypatch):
     monkeypatch.setenv("GEMINI_API_KEY", "teste")
     assert "recusou" in cerebro.Cerebro().pensar("olá")["resposta"]
     assert len(tentados) == 1
+
+
+def test_gemini_comeca_pelo_ultimo_modelo_que_funcionou(monkeypatch):
+    tentados = []
+
+    def falso_post(url, cabecalhos, corpo, timeout=30):
+        tentados.append(url.split("/models/")[1].split(":")[0])
+        return {"candidates": [{"content": {"parts": [{"text": '{"resposta": "ok", "acoes": []}'}]}}]}
+
+    monkeypatch.setattr(cerebro, "_post", falso_post)
+    monkeypatch.setattr(cerebro, "IA", "gemini")
+    monkeypatch.setattr(cerebro, "ultimo_modelo", "gemini-3.1-flash-lite")
+    monkeypatch.setenv("GEMINI_API_KEY", "teste")
+    cerebro.Cerebro().pensar("olá")
+    assert tentados == ["gemini-3.1-flash-lite"]

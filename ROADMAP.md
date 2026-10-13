@@ -22,7 +22,9 @@ Cada fase termina com algo que se pode testar no Fedora.
 - [x] A IA devolve resposta + ações de uma lista fechada (nada de comandos livres)
 - [x] Comandos simples ficam locais; compostos/livres/desconhecidos vão à IA
 - [x] Memória curta da conversa (últimas mensagens)
-- [ ] Teste real com chave do Landim: "abre o YouTube no Brave e pesquisa algo interessante sobre IA"
+- [x] Teste real: "abre o YouTube e pesquisa algo interessante sobre IA", lo-fi, Amílcar Cabral, curiosidade CV
+- [x] Modelos de reserva + lembrar o modelo que funcionou + espera de 8 s por modelo
+- [ ] Testar a memória curta ("quem foi X?" → "e onde nasceu?")
 - [ ] "Bom dia, JARVIS": hora, tempo na Praia, notícias
 - [ ] Ações perigosas pedem confirmação
 
