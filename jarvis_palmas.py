@@ -22,6 +22,7 @@ import numpy as np
 import sounddevice as sd
 
 import voz
+from config import NOME
 from voz import falar
 
 # --- Afinação ---------------------------------------------------------------
@@ -53,7 +54,7 @@ def abrir_terminal() -> None:
 def modo_trabalho() -> None:
     hora = time.localtime().tm_hour
     saudacao = "Bom dia" if hora < 12 else "Boa tarde" if hora < 19 else "Boa noite"
-    falar(f"{saudacao}, Admilson. A preparar o ambiente de trabalho.")
+    falar(f"{saudacao}, {NOME}. A preparar o ambiente de trabalho.")
     abrir("code")
     abrir_terminal()
     abrir("xdg-open", "https://github.com/Admilson-Landim")
@@ -124,7 +125,7 @@ def main() -> None:
     if args.calibrar:
         print(f"\n\nSom mais forte registado: {estado['maximo']:0.2f}")
         print(f"LIMIAR atual: {LIMIAR}")
-    print("\nAté já, Admilson.")
+    print(f"\nAté já, {NOME}.")
 
 
 if __name__ == "__main__":

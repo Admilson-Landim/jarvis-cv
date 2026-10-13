@@ -17,7 +17,7 @@ pip install --user -r requirements.txt
 
 ### Voz brasileira (Piper)
 
-Voz neural, gratuita e offline. Descarrega uma vez (~60 MB):
+Voz neural, gratuita e offline. Descarrega-se sozinha na primeira vez que o JARVIS fala (~60 MB). Também podes descarregar à mão:
 
 ```bash
 python3 -m piper.download_voices pt_BR-faber-medium --data-dir vozes

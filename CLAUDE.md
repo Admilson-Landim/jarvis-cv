@@ -1,6 +1,6 @@
 # Notas para o Claude
 
-- O dono é o Admilson (Cabo Verde). Fala com ele em português.
+- O dono é o Admilson (Cabo Verde); o JARVIS trata-o por "Landim" (config.py). Fala com ele em português.
 - O código corre no **Fedora Workstation** do Admilson; o Claude implementa e faz push,
   o Admilson faz `git pull`, testa e reporta. Escreve sempre instruções de teste claras.
 - Trabalhar por fases (ver ROADMAP.md); atualizar o ROADMAP ao terminar cada passo.

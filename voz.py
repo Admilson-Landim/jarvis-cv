@@ -16,6 +16,8 @@ from pathlib import Path
 import numpy as np
 import sounddevice as sd
 
+from config import NOME
+
 PASTA_VOZES = Path(__file__).parent / "vozes"
 VOZ = "pt_BR-faber-medium"   # troca aqui para experimentar outra voz
 
@@ -33,8 +35,14 @@ def _carregar_piper():
     _carregada = True
     modelo = PASTA_VOZES / f"{VOZ}.onnx"
     if not modelo.exists():
-        print(f"  (voz Piper '{VOZ}' não encontrada em {PASTA_VOZES}; a usar espeak)")
-        return None
+        print(f"  A descarregar a voz '{VOZ}' (só da primeira vez, ~60 MB)...")
+        try:
+            from piper.download_voices import download_voice
+            PASTA_VOZES.mkdir(exist_ok=True)
+            download_voice(VOZ, PASTA_VOZES)
+        except Exception as erro:
+            print(f"  (não consegui descarregar a voz: {erro}; a usar espeak)")
+            return None
     try:
         from piper import PiperVoice
         _voz_piper = PiperVoice.load(str(modelo))
@@ -80,5 +88,5 @@ def falar(texto: str, esperar: bool = False) -> None:
 
 if __name__ == "__main__":
     import sys
-    frase = " ".join(sys.argv[1:]) or "Olá, Admilson. Eu sou o JARVIS. Todos os sistemas estão operacionais."
+    frase = " ".join(sys.argv[1:]) or f"Olá, {NOME}. Eu sou o JARVIS. Todos os sistemas estão operacionais."
     falar(frase, esperar=True)
