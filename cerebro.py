@@ -18,7 +18,7 @@ import urllib.error
 import urllib.request
 from pathlib import Path
 
-from config import IA, MODELO_IA, MODELOS_RESERVA, NOME, TEMPO_IA
+from config import ASSISTENTE, IA, MODELO_IA, MODELOS_RESERVA, NOME, TEMPO_IA
 
 PASTA = Path(__file__).parent
 
@@ -31,14 +31,15 @@ ACOES_PERMITIDAS = {
     "volume": "muda o volume. Campos: direcao (mais | menos | mudo)",
     "bloquear_ecra": "bloqueia o computador. Sem campos",
     "modo_trabalho": "abre VS Code, terminal e GitHub. Sem campos",
-    "sair": "desliga o JARVIS. Sem campos",
+    "sair": "desliga o assistente. Sem campos",
 }
 
 
 def _instrucoes() -> str:
     lista = "\n".join(f'- "{nome}": {desc}' for nome, desc in ACOES_PERMITIDAS.items())
     agora = time.strftime("%d/%m/%Y %H:%M")
-    return f"""És o JARVIS, o assistente pessoal de voz do {NOME}, um programador de Cabo Verde.
+    return f"""És o {ASSISTENTE}, o assistente pessoal de voz do {NOME}, um programador de Cabo Verde.
+O teu estilo inspira-se no JARVIS dos filmes, mas o teu nome é {ASSISTENTE}.
 Corres no PC dele (Fedora Linux). Agora são {agora}.
 
 Responde SEMPRE só com JSON neste formato:
@@ -46,7 +47,7 @@ Responde SEMPRE só com JSON neste formato:
 
 Regras:
 - "resposta" em português, curta (1 a 3 frases), natural para ser falada. Sem emojis, markdown ou links.
-- Trata-o por {NOME}, com um toque de humor britânico do JARVIS, sem exagerar.
+- Trata-o por {NOME}, com um toque de humor elegante, sem exagerar.
 - "acoes" só pode usar estes tipos (lista vazia se for só conversa):
 {lista}
 - Escreve em português correto, COM acentos (é, ã, ç...), porque o texto vai ser lido em voz alta.
@@ -269,7 +270,7 @@ class Cerebro:
             return ""
         texto = analisar(bruto)["resposta"]
         # fica na memória, para poderes perguntar algo sobre o resumo a seguir
-        self.historico += [{"role": "user", "content": "Bom dia, JARVIS."},
+        self.historico += [{"role": "user", "content": f"Bom dia, {ASSISTENTE}."},
                            {"role": "assistant", "content": json.dumps({"resposta": texto, "acoes": []},
                                                                        ensure_ascii=False)}]
         self.historico = self.historico[-self.memoria:]
@@ -284,5 +285,5 @@ if __name__ == "__main__":
     if not disponivel():
         print(f"Falta a chave {NOME_CHAVE[IA]} no ficheiro .env")
         sys.exit(1)
-    pedido = " ".join(sys.argv[1:]) or "Olá JARVIS, quem és tu?"
+    pedido = " ".join(sys.argv[1:]) or f"Olá {ASSISTENTE}, quem és tu?"
     print(json.dumps(Cerebro().pensar(pedido), ensure_ascii=False, indent=2))

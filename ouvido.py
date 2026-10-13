@@ -12,7 +12,7 @@ Teste isolado:
 
 import numpy as np
 
-from config import MODELO_WHISPER
+from config import ASSISTENTE, MODELO_WHISPER, NOME
 
 TAXA = 16000  # o Whisper trabalha a 16 kHz
 
@@ -53,6 +53,7 @@ def transcrever(audio: np.ndarray) -> str:
         beam_size=1,
         vad_filter=True,           # corta silêncios e ruído
         condition_on_previous_text=False,
+        initial_prompt=f"{ASSISTENTE}, {NOME}.",  # ajuda a escrever bem os nomes
     )
     return " ".join(s.text.strip() for s in segmentos).strip()
 

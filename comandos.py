@@ -16,7 +16,7 @@ import urllib.parse
 from dataclasses import dataclass, field
 from typing import Callable, Optional
 
-from config import NAVEGADOR, NOME
+from config import ASSISTENTE, NAVEGADOR, NOME
 
 
 @dataclass
@@ -170,7 +170,7 @@ def _cmd_conversa(t: str) -> Optional[Comando]:
     if _tem(t, "obrigado", "obrigada", "valeu"):
         return Comando("obrigado", f"Sempre às ordens, {NOME}.")
     if _tem(t, "quem es", "quem e voce", "quem e tu", "como te chamas"):
-        return Comando("quem", "Eu sou o JARVIS, o teu assistente pessoal.")
+        return Comando("quem", f"Eu sou o {ASSISTENTE}, o teu assistente pessoal.")
     return None
 
 

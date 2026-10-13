@@ -16,7 +16,7 @@ from pathlib import Path
 import numpy as np
 import sounddevice as sd
 
-from config import NOME
+from config import ASSISTENTE, NOME
 
 PASTA_VOZES = Path(__file__).parent / "vozes"
 VOZ = "pt_BR-faber-medium"   # troca aqui para experimentar outra voz
@@ -73,7 +73,7 @@ def _falar_agora(texto: str) -> None:
         elif shutil.which("espeak-ng"):
             subprocess.run(["espeak-ng", "-v", "pt-br", texto])
         else:
-            print(f"[JARVIS] {texto}")
+            print(f"[{ASSISTENTE}] {texto}")
     finally:
         a_falar.clear()
 
@@ -101,5 +101,5 @@ def falar(texto: str, esperar: bool = False) -> None:
 
 if __name__ == "__main__":
     import sys
-    frase = " ".join(sys.argv[1:]) or f"Olá, {NOME}. Eu sou o JARVIS. Todos os sistemas estão operacionais."
+    frase = " ".join(sys.argv[1:]) or f"Olá, {NOME}. Eu sou o {ASSISTENTE}. Todos os sistemas estão operacionais."
     falar(frase, esperar=True)

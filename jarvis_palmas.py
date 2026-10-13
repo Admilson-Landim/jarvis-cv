@@ -22,7 +22,7 @@ import numpy as np
 import sounddevice as sd
 
 import voz
-from config import NOME
+from config import ASSISTENTE, NOME
 from voz import falar
 
 # --- Afinação ---------------------------------------------------------------
@@ -111,7 +111,7 @@ def main() -> None:
         print("Os sons fortes ficam registados. Ctrl+C para terminar.\n")
     else:
         voz.preparar()
-        print("JARVIS à escuta... (Ctrl+C para sair)")
+        print(f"{ASSISTENTE} à escuta... (Ctrl+C para sair)")
     try:
         with sd.InputStream(samplerate=TAXA, blocksize=BLOCO, channels=1, callback=callback):
             while True:

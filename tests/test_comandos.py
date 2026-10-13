@@ -30,6 +30,8 @@ def test_normalizar():
     ("Pesquisa por receitas de cachupa", "pesquisar"),
     ("Modo trabalho", "modo_trabalho"),
     ("Obrigado, JARVIS", "obrigado"),
+    ("Obrigado, Truta", "obrigado"),
+    ("Quem és tu?", "quem"),
     ("Desliga.", "sair"),
     ("Faz-me um café", "desconhecido"),
     ("", "vazio"),

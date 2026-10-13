@@ -21,7 +21,7 @@ import ouvido
 import resumo
 import voz
 from comandos import executar_acao, interpretar, precisa_do_cerebro
-from config import DURACAO_MAX, ESPERA_MAX, IA, LIMIAR_VOZ, NOME, SILENCIO_FIM
+from config import ASSISTENTE, DURACAO_MAX, ESPERA_MAX, IA, LIMIAR_VOZ, NOME, SILENCIO_FIM
 from jarvis_palmas import INTERVALO_MAX, INTERVALO_MIN, LIMIAR, TAXA as TAXA_MIC
 
 TAXA = TAXA_MIC      # o microfone é lido em alta qualidade (as palmas precisam)
@@ -37,7 +37,7 @@ def tratar(texto: str) -> bool:
     if cmd.nome == "bom_dia":
         print("  -> ☀️ resumo do dia")
         texto_resumo = resumo.gerar(CEREBRO)
-        print(f"  JARVIS: {texto_resumo}")
+        print(f"  {ASSISTENTE}: {texto_resumo}")
         voz.falar(texto_resumo, esperar=True)
         return True
 
@@ -52,7 +52,7 @@ def tratar(texto: str) -> bool:
             else:
                 executar_acao(acao)
         if resultado["resposta"]:
-            print(f"  JARVIS: {resultado['resposta']}")
+            print(f"  {ASSISTENTE}: {resultado['resposta']}")
             voz.falar(resultado["resposta"], esperar=True)
         return not sair
 
@@ -140,7 +140,7 @@ def modo_voz() -> None:
         estado["bloqueado_ate"] = time.monotonic() + 1.0
         estado["modo"] = "palmas"
 
-    print(f"JARVIS à escuta, {NOME}. Duas palmas para chamar. (Ctrl+C para sair)")
+    print(f"{ASSISTENTE} à escuta, {NOME}. Duas palmas para chamar. (Ctrl+C para sair)")
     try:
         with sd.InputStream(samplerate=TAXA, blocksize=BLOCO, channels=1,
                             dtype="float32", callback=callback):

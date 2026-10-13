@@ -1,5 +1,7 @@
 # jarvis-cv
 
+O assistente chama-se **Truta** (muda em `config.py` → `ASSISTENTE`).
+
 Assistente pessoal ao estilo JARVIS, feito em Cabo Verde, a correr no **Fedora**.
 Objetivo: um assistente que ouve, fala em **português (e um dia em crioulo)** e age no mundo real: PC, Smart TV, telemóvel.
 

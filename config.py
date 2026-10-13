@@ -1,6 +1,7 @@
 """Configuração pessoal do JARVIS."""
 
-NOME = "Landim"   # como o JARVIS te chama
+NOME = "Landim"        # como o assistente te chama
+ASSISTENTE = "Truta"   # o nome do assistente (inspirado no JARVIS)
 
 # Onde estás (para o tempo no "Bom dia, JARVIS")
 CIDADE = "Praia"

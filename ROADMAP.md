@@ -27,7 +27,9 @@ Cada fase termina com algo que se pode testar no Fedora.
 - [x] Memória curta testada ("quem foi Amílcar Cabral?" → "e onde é que ele nasceu?")
 - [x] Último modelo que funcionou fica gravado em .estado.json
 - [x] "Bom dia, JARVIS": data, hora, tempo na Praia (Open-Meteo) e dica do dia pela IA
-- [ ] Teste real do "Bom dia, JARVIS" no PC do Landim
+- [x] Teste real do "Boa tarde": tempo real da Praia, conselho da água e dica do dia
+- [x] Palmas corrigidas no jarvis.py (microfone a 48 kHz, igual à calibração)
+- [x] Assistente renomeado para "Truta" (config.py)
 - [ ] Ações perigosas pedem confirmação
 
 ## Fase 4 — Smart TV (TOP VISION)
