@@ -180,3 +180,46 @@ def interpretar(texto: str) -> Comando:
         if cmd:
             return cmd
     return Comando("desconhecido", "Desculpa, ainda não sei fazer isso.")
+
+
+# --- Ações vindas do cérebro (IA) --------------------------------------------
+APPS = {
+    "vscode": lambda: _correr("code"),
+    "terminal": _abrir_terminal,
+    "navegador": lambda: _navegador("about:blank"),
+    "ficheiros": lambda: _correr("nautilus"),
+}
+
+
+def executar_acao(acao: dict) -> None:
+    """Executa uma ação já validada pelo cerebro.analisar()."""
+    tipo = acao.get("tipo")
+    if tipo == "abrir_site":
+        _navegador(acao["url"])
+    elif tipo == "pesquisar_google":
+        _navegador("https://www.google.com/search?q=" + urllib.parse.quote(str(acao.get("termo", ""))))
+    elif tipo == "pesquisar_youtube":
+        _navegador("https://www.youtube.com/results?search_query=" + urllib.parse.quote(str(acao.get("termo", ""))))
+    elif tipo == "abrir_app" and acao.get("app") in APPS:
+        APPS[acao["app"]]()
+    elif tipo == "volume":
+        passo = {"mais": "10%+", "menos": "10%-"}.get(acao.get("direcao"))
+        if passo:
+            _volume(passo)()
+        elif acao.get("direcao") == "mudo":
+            _correr("wpctl", "set-mute", "@DEFAULT_AUDIO_SINK@", "toggle")
+    elif tipo == "bloquear_ecra":
+        _correr("loginctl", "lock-session")
+    elif tipo == "modo_trabalho":
+        _cmd_trabalho("trabalho").executar()
+    # "sair" é tratado pelo jarvis.py
+
+
+def precisa_do_cerebro(texto: str, cmd: Comando) -> bool:
+    """Regras locais para o simples; IA para o composto, o livre ou o desconhecido."""
+    if cmd.nome in ("desconhecido",):
+        return True
+    if cmd.nome in ("sair", "vazio"):
+        return False
+    t = normalizar(texto)
+    return bool(re.search(r"\b(e|depois|tambem)\b", t)) or len(t.split()) > 7

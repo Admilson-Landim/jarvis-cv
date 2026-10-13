@@ -5,6 +5,11 @@ NOME = "Landim"   # como o JARVIS te chama
 # Navegador para abrir sites ("brave-browser", "firefox"...). None = o padrão do sistema
 NAVEGADOR = "brave-browser"
 
+# Cérebro (IA na nuvem). A chave vai no ficheiro .env
+IA = "gemini"                       # "gemini" (grátis) ou "claude" (API paga)
+MODELO_IA = "gemini-3.5-flash-lite"  # rápido; "gemini-3.8-flash" é mais esperto
+# Para o Claude: IA = "claude" e MODELO_IA = "claude-haiku-5-5"
+
 # Reconhecimento de voz (Whisper): "base" é mais rápido, "small" percebe melhor
 MODELO_WHISPER = "small"
 

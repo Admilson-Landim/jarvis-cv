@@ -16,19 +16,38 @@ import time
 import numpy as np
 import sounddevice as sd
 
+import cerebro
 import ouvido
 import voz
-from comandos import interpretar
-from config import DURACAO_MAX, ESPERA_MAX, LIMIAR_VOZ, NOME, SILENCIO_FIM
+from comandos import executar_acao, interpretar, precisa_do_cerebro
+from config import DURACAO_MAX, ESPERA_MAX, IA, LIMIAR_VOZ, NOME, SILENCIO_FIM
 from jarvis_palmas import INTERVALO_MAX, INTERVALO_MIN, LIMIAR
 
 TAXA = ouvido.TAXA   # 16 kHz serve para as palmas e para o Whisper
 BLOCO = 512          # ~32 ms
 
+CEREBRO = cerebro.Cerebro() if cerebro.disponivel() else None
+
 
 def tratar(texto: str) -> bool:
     """Interpreta e executa. Devolve False se for para sair."""
     cmd = interpretar(texto)
+
+    if CEREBRO and precisa_do_cerebro(texto, cmd):
+        print("  -> 🧠 a pensar...")
+        resultado = CEREBRO.pensar(texto)
+        sair = False
+        for acao in resultado["acoes"]:
+            print(f"     ação: {acao}")
+            if acao["tipo"] == "sair":
+                sair = True
+            else:
+                executar_acao(acao)
+        if resultado["resposta"]:
+            print(f"  JARVIS: {resultado['resposta']}")
+            voz.falar(resultado["resposta"], esperar=True)
+        return not sair
+
     print(f"  -> {cmd.nome}")
     cmd.executar()
     if cmd.resposta:
@@ -36,8 +55,16 @@ def tratar(texto: str) -> bool:
     return not cmd.sair
 
 
+def estado_cerebro() -> None:
+    if CEREBRO:
+        print(f"  Cérebro: {IA} ✅")
+    else:
+        print("  Cérebro: desligado (falta a chave no .env) — só comandos simples")
+
+
 def modo_escrever() -> None:
     voz.preparar()
+    estado_cerebro()
     print("Escreve um comando (ex.: 'abre o youtube'). 'adeus' para sair.")
     while True:
         try:
@@ -51,6 +78,7 @@ def modo_escrever() -> None:
 def modo_voz() -> None:
     voz.preparar()
     ouvido.preparar()
+    estado_cerebro()
 
     eventos: "queue.Queue[tuple]" = queue.Queue()
     estado = {

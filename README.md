@@ -3,7 +3,31 @@
 Assistente pessoal ao estilo JARVIS, feito em Cabo Verde, a correr no **Fedora**.
 Objetivo: um assistente que ouve, fala em **português (e um dia em crioulo)** e age no mundo real: PC, Smart TV, telemóvel.
 
-## Estado atual — Fase 2: comandos de voz 🎙️
+## Estado atual — Fase 3: cérebro com IA 🧠
+
+Pedidos compostos ou livres ("abre o YouTube e pesquisa algo interessante sobre IA",
+"conta-me uma curiosidade sobre Cabo Verde") vão para uma IA na nuvem.
+Comandos simples continuam a ser resolvidos localmente, sem internet.
+
+**Configurar (uma vez):**
+
+1. Cria uma chave grátis em <https://aistudio.google.com> → *Get API key*.
+2. Copia o ficheiro de exemplo e mete lá a chave:
+   ```bash
+   cp .env.exemplo .env
+   nano .env          # GEMINI_API_KEY=a_tua_chave
+   ```
+   O `.env` nunca vai para o GitHub.
+3. Testa só o cérebro:
+   ```bash
+   python3 cerebro.py "abre o youtube e pesquisa algo interessante sobre IA"
+   ```
+
+A IA só pode pedir ações de uma **lista fechada** (`ACOES_PERMITIDAS` em `cerebro.py`):
+abrir sites, pesquisar, abrir apps, volume, bloquear ecrã. Nunca executa comandos livres.
+Para usar o Claude em vez do Gemini, muda `IA` e `MODELO_IA` em `config.py`.
+
+## Fase 2: comandos de voz 🎙️
 
 Duas palmas → o JARVIS diz *"Sim, Landim?"* → dizes uma ordem → ele executa.
 

@@ -17,9 +17,12 @@ Cada fase termina com algo que se pode testar no Fedora.
 - [x] Teste real: palmas → "abre YouTube" → abriu (Whisper small percebe bem)
 - [x] Bip depois de "Sim, Landim?" para saber quando falar
 
-## Fase 3 — Cérebro (LLM)
-- [ ] Mandar o pedido a um LLM, que decide a ação
-- [ ] Pedidos compostos e livres (ex.: "abre o YouTube no Brave e pesquisa algo interessante sobre IA")
+## Fase 3 — Cérebro (LLM) (em teste)
+- [x] Gemini grátis (gemini-3.5-flash-lite), Claude como alternativa em config.py
+- [x] A IA devolve resposta + ações de uma lista fechada (nada de comandos livres)
+- [x] Comandos simples ficam locais; compostos/livres/desconhecidos vão à IA
+- [x] Memória curta da conversa (últimas mensagens)
+- [ ] Teste real com chave do Landim: "abre o YouTube no Brave e pesquisa algo interessante sobre IA"
 - [ ] "Bom dia, JARVIS": hora, tempo na Praia, notícias
 - [ ] Ações perigosas pedem confirmação
 

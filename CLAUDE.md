@@ -7,3 +7,5 @@
 - Python 3, dependências em `requirements.txt`, pacotes do sistema via `dnf`.
 - O ambiente do Claude não tem microfone nem altifalante: validar com testes/lógica,
   e deixar a verificação real (áudio, TV) para o Admilson.
+- Segurança: a IA só pode pedir ações de `ACOES_PERMITIDAS` (cerebro.py), validadas em `analisar()`.
+  Nunca dar à IA execução de comandos livres. Chaves só no `.env` (ignorado pelo git).
