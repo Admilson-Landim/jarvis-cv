@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-JARVIS - Fase 2: duas palmas -> "Sim, Landim?" -> ouve a ordem -> executa.
+Truta (jarvis-cv): duas palmas -> "Sim, Landim?" -> ouve a ordem -> executa.
 
 Uso:
     python3 jarvis.py              # modo normal (palmas + voz)
@@ -10,8 +10,12 @@ Calibração das palmas: python3 jarvis_palmas.py --calibrar
 """
 
 import argparse
+import fcntl
 import queue
+import shutil
+import subprocess
 import time
+from pathlib import Path
 
 import numpy as np
 import sounddevice as sd
@@ -83,7 +87,31 @@ def modo_escrever() -> None:
             break
 
 
+_trinco = None  # mantém o ficheiro de trinco aberto enquanto o programa corre
+
+
+def so_uma_instancia() -> bool:
+    """Evita dois Trutas a ouvir o mesmo microfone (ex.: serviço + terminal)."""
+    global _trinco
+    _trinco = open(Path(__file__).parent / ".truta.lock", "w")
+    try:
+        fcntl.flock(_trinco, fcntl.LOCK_EX | fcntl.LOCK_NB)
+        return True
+    except OSError:
+        return False
+
+
+def notificar(texto: str) -> None:
+    if shutil.which("notify-send"):
+        subprocess.Popen(["notify-send", "-a", ASSISTENTE, "-i", "audio-input-microphone",
+                          ASSISTENTE, texto])
+
+
 def modo_voz() -> None:
+    if not so_uma_instancia():
+        print(f"O {ASSISTENTE} já está a correr noutro sítio (provavelmente o serviço).")
+        print("Para o parar:  ./arranque.sh parar")
+        return
     voz.preparar()
     ouvido.preparar()
     estado_cerebro()
@@ -141,6 +169,7 @@ def modo_voz() -> None:
         estado["modo"] = "palmas"
 
     print(f"{ASSISTENTE} à escuta, {NOME}. Duas palmas para chamar. (Ctrl+C para sair)")
+    notificar(f"À escuta, {NOME}. Duas palmas para chamar.")
     try:
         with sd.InputStream(samplerate=TAXA, blocksize=BLOCO, channels=1,
                             dtype="float32", callback=callback):

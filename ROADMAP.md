@@ -32,11 +32,18 @@ Cada fase termina com algo que se pode testar no Fedora.
 - [x] Assistente renomeado para "Truta" (config.py)
 - [ ] Ações perigosas pedem confirmação
 
+## Fase 3.5 — Integração com o Fedora
+- [x] Serviço systemd do utilizador (`arranque.sh`): arranca no login, reinicia se falhar
+- [x] Só uma instância a ouvir o microfone; notificação do GNOME quando fica pronto
+- [ ] Teste real: reiniciar a sessão e chamar o Truta sem abrir o terminal
+
 ## Fase 4 — Smart TV (TOP VISION)
 - [ ] Descobrir o sistema da TV e como controlá-la pela rede
 - [ ] Palmas → ligar a TV / abrir YouTube; volume por voz
 
 ## Fase 5 — Extras
+- [ ] "Truta, programa o projeto X": lança o Claude Code numa pasta autorizada para seguir
+      um PLANO.md por ordem — com confirmação por voz antes de arrancar
 - [ ] Comandos em crioulo cabo-verdiano
 - [ ] Ligação ao DonaGerma (pacotes de dados por voz)
 - [ ] Interface com a esfera animada

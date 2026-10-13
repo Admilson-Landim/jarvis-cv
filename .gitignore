@@ -6,3 +6,4 @@ venv/
 vozes/
 *.wav
 .estado.json
+.truta.lock

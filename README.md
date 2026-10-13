@@ -5,6 +5,19 @@ O assistente chama-se **Truta** (muda em `config.py` → `ASSISTENTE`).
 Assistente pessoal ao estilo JARVIS, feito em Cabo Verde, a correr no **Fedora**.
 Objetivo: um assistente que ouve, fala em **português (e um dia em crioulo)** e age no mundo real: PC, Smart TV, telemóvel.
 
+## Arrancar sozinho com o Fedora 🚀
+
+```bash
+./arranque.sh instalar     # o Truta passa a arrancar sempre que entras na sessão
+./arranque.sh registos     # ver o que ele está a fazer
+./arranque.sh reiniciar    # depois de um git pull
+./arranque.sh parar        # parar agora (para testar no terminal, por exemplo)
+./arranque.sh remover      # desligar o arranque automático
+```
+
+Só pode haver um Truta a ouvir de cada vez: se o serviço estiver ligado e correres
+`python3 jarvis.py`, ele avisa e sai. Dizer "desliga" deixa-o parado até ao próximo login.
+
 ## Estado atual — Fase 3: cérebro com IA 🧠
 
 Pedidos compostos ou livres ("abre o YouTube e pesquisa algo interessante sobre IA",
