@@ -62,14 +62,23 @@ def main() -> None:
     args = parser.parse_args()
 
     eventos: "queue.Queue[str]" = queue.Queue()
-    estado = {"ultimo_pico": 0.0, "palmas": [], "bloqueado_ate": 0.0}
+    estado = {"ultimo_pico": 0.0, "palmas": [], "bloqueado_ate": 0.0,
+              "maximo": 0.0, "ultimo_registo": 0.0}
 
     def callback(indata, frames, time_info, status):
         pico = float(np.max(np.abs(indata)))
 
         if args.calibrar:
+            agora = time.monotonic()
+            estado["maximo"] = max(estado["maximo"], pico)
+            # Sons fortes (palmas) ficam registados numa linha própria
+            if pico >= 0.10 and agora - estado["ultimo_registo"] > 0.3:
+                estado["ultimo_registo"] = agora
+                marca = "  <- acima do LIMIAR" if pico >= LIMIAR else ""
+                print(f"\rSOM FORTE: {pico:0.2f}{marca}" + " " * 40)
             barra = "#" * int(pico * 50)
-            print(f"\r{pico:0.2f} {barra:<50}", end="", flush=True)
+            print(f"\ragora {pico:0.2f} | máx {estado['maximo']:0.2f} | {barra:<50}",
+                  end="", flush=True)
             return
 
         agora = time.monotonic()
@@ -88,7 +97,11 @@ def main() -> None:
             estado["bloqueado_ate"] = agora + PAUSA
             eventos.put("duas_palmas")
 
-    print("JARVIS à escuta... (Ctrl+C para sair)")
+    if args.calibrar:
+        print("MODO CALIBRAÇÃO: bate palmas algumas vezes, depois fala normalmente.")
+        print("Os sons fortes ficam registados. Ctrl+C para terminar.\n")
+    else:
+        print("JARVIS à escuta... (Ctrl+C para sair)")
     with sd.InputStream(samplerate=TAXA, blocksize=BLOCO, channels=1, callback=callback):
         try:
             while True:
@@ -97,6 +110,9 @@ def main() -> None:
                     print("👏👏 detetadas!")
                     modo_trabalho()
         except KeyboardInterrupt:
+            if args.calibrar:
+                print(f"\n\nSom mais forte registado: {estado['maximo']:0.2f}")
+                print(f"LIMIAR atual: {LIMIAR}")
             print("\nAté já, Admilson.")
 
 
