@@ -41,8 +41,12 @@ Cada fase termina com algo que se pode testar no Fedora.
 
 ## Fase 4 — Smart TV (TOP VISION)
 - [x] `descobrir_tv.py`: procura TVs (SSDP/UPnP) e testa portas de controlo conhecidas
-- [x] TV TOP VISION encontrada: Android (com Play Store) em 192.168.88.19, ADB na porta 5555
-- [ ] Ligar por ADB e confirmar modelo/versão do Android
+- [x] TV TOP VISION: Android com launcher próprio (Play Store, Kindlink, GAIA)
+- [x] Atenção: 192.168.88.19 (porta 5555) é o Huawei PPA-LX2 do Landim, NÃO a TV
+- [ ] **Retomar aqui:** descobrir o IP da TV (candidatos .13, .16, .29, .253 — desligar a TV e
+      voltar a varrer, ou ver em Definições → Rede)
+- [ ] Ativar Opções de programador na TV (7 toques em "Número de compilação") + depuração por rede
+- [ ] `adb connect <IP da TV>:5555`, confirmar modelo e encontrar o pacote do YouTube
 - [ ] Palmas → ligar a TV / abrir YouTube; volume por voz
 
 ## Fase 5 — Extras
@@ -50,4 +54,5 @@ Cada fase termina com algo que se pode testar no Fedora.
       um PLANO.md por ordem — com confirmação por voz antes de arrancar
 - [ ] Comandos em crioulo cabo-verdiano
 - [ ] Ligação ao DonaGerma (pacotes de dados por voz)
+- [ ] Controlar o telemóvel Huawei por ADB (ex.: ler a última notificação)
 - [ ] Interface com a esfera animada
