@@ -18,6 +18,7 @@ Cada fase termina com algo que se pode testar no Fedora.
 
 ## Fase 3 — Cérebro (LLM)
 - [ ] Mandar o pedido a um LLM, que decide a ação
+- [ ] Pedidos compostos e livres (ex.: "abre o YouTube no Brave e pesquisa algo interessante sobre IA")
 - [ ] "Bom dia, JARVIS": hora, tempo na Praia, notícias
 - [ ] Ações perigosas pedem confirmação
 

@@ -16,7 +16,7 @@ import urllib.parse
 from dataclasses import dataclass, field
 from typing import Callable, Optional
 
-from config import NOME
+from config import NAVEGADOR, NOME
 
 
 @dataclass
@@ -47,8 +47,15 @@ def _correr(*cmd: str) -> None:
         print(f"  (não encontrei '{cmd[0]}')")
 
 
+def _navegador(url: str) -> None:
+    if NAVEGADOR and shutil.which(NAVEGADOR):
+        _correr(NAVEGADOR, url)
+    else:
+        _correr("xdg-open", url)  # navegador padrão do sistema
+
+
 def _abrir_url(url: str) -> Callable[[], None]:
-    return lambda: _correr("xdg-open", url)
+    return lambda: _navegador(url)
 
 
 def _abrir_terminal() -> None:
@@ -130,7 +137,7 @@ def _cmd_trabalho(t: str) -> Optional[Comando]:
         def acao():
             _correr("code")
             _abrir_terminal()
-            _correr("xdg-open", SITES["github"])
+            _navegador(SITES["github"])
         return Comando("modo_trabalho", "A preparar o ambiente de trabalho.", acao)
     return None
 
@@ -145,8 +152,8 @@ def _cmd_abrir(t: str) -> Optional[Comando]:
         return Comando("abrir_vscode", "A abrir o VS Code.", lambda: _correr("code"))
     if _tem(t, "terminal", "consola"):
         return Comando("abrir_terminal", "A abrir o terminal.", _abrir_terminal)
-    if _tem(t, "browser", "navegador", "firefox"):
-        return Comando("abrir_browser", "A abrir o navegador.", lambda: _correr("firefox"))
+    if _tem(t, "browser", "navegador", "brave", "firefox"):
+        return Comando("abrir_browser", "A abrir o navegador.", lambda: _navegador("about:blank"))
     if _tem(t, "ficheiros", "arquivos", "pastas"):
         return Comando("abrir_ficheiros", "A abrir os ficheiros.", lambda: _correr("nautilus"))
     return None

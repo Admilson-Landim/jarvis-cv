@@ -2,6 +2,9 @@
 
 NOME = "Landim"   # como o JARVIS te chama
 
+# Navegador para abrir sites ("brave-browser", "firefox"...). None = o padrão do sistema
+NAVEGADOR = "brave-browser"
+
 # Reconhecimento de voz (Whisper): "base" é mais rápido, "small" percebe melhor
 MODELO_WHISPER = "small"
 
