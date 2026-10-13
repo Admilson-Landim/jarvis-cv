@@ -78,6 +78,19 @@ def _falar_agora(texto: str) -> None:
         a_falar.clear()
 
 
+def bip() -> None:
+    """Bip curto: sinal de que o JARVIS está a ouvir."""
+    taxa = 22050
+    t = np.linspace(0, 0.15, int(taxa * 0.15), endpoint=False)
+    som = 0.3 * np.sin(2 * np.pi * 880 * t) * np.hanning(t.size)
+    a_falar.set()
+    try:
+        sd.play(som.astype(np.float32), taxa)
+        sd.wait()
+    finally:
+        a_falar.clear()
+
+
 def falar(texto: str, esperar: bool = False) -> None:
     """Diz o texto em voz alta. Por defeito não bloqueia o resto do programa."""
     if esperar:

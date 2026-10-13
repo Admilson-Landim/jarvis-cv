@@ -114,10 +114,11 @@ def modo_voz() -> None:
                 if tipo == "palmas":
                     print("👏👏")
                     voz.falar(f"Sim, {NOME}?", esperar=True)
+                    voz.bip()  # podes falar a partir daqui
                     estado.update(blocos=[], falou=False, inicio=time.monotonic(),
                                   ultimo_som=time.monotonic())
                     estado["modo"] = "gravar"
-                    print("  a ouvir...")
+                    print("  🔊 bip — a ouvir...")
 
                 elif tipo == "audio":
                     texto = ouvido.transcrever(dados) if dados.size else ""

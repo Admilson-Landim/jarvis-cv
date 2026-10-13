@@ -24,7 +24,7 @@ def preparar() -> None:
     global _modelo
     if _modelo is None:
         from faster_whisper import WhisperModel
-        print(f"  A carregar o Whisper '{MODELO_WHISPER}' (da 1ª vez descarrega-o)...")
+        print(f"  A carregar o Whisper '{MODELO_WHISPER}'...")
         _modelo = WhisperModel(MODELO_WHISPER, device="cpu", compute_type="int8")
         print("  Whisper pronto.")
 
