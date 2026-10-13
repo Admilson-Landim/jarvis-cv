@@ -45,9 +45,22 @@ def transcrever(audio: np.ndarray) -> str:
 
 
 if __name__ == "__main__":
+    import wave
+
     import sounddevice as sd
+
     preparar()
-    print("Fala agora (4 segundos)...")
-    gravacao = sd.rec(int(4 * TAXA), samplerate=TAXA, channels=1, dtype="float32")
+    print("Fala agora (5 segundos)...")
+    gravacao = sd.rec(int(5 * TAXA), samplerate=TAXA, channels=1, dtype="float32")
     sd.wait()
-    print("Percebi:", repr(transcrever(gravacao[:, 0])))
+    audio = gravacao[:, 0]
+
+    with wave.open("teste_ouvido.wav", "wb") as f:  # para ouvires o que foi captado
+        f.setnchannels(1)
+        f.setsampwidth(2)
+        f.setframerate(TAXA)
+        f.writeframes((np.clip(audio, -1, 1) * 32767).astype(np.int16).tobytes())
+
+    print(f"Volume máximo captado: {float(np.max(np.abs(audio))):.2f}")
+    print("Percebi:", repr(transcrever(audio)))
+    print("Gravação guardada em teste_ouvido.wav (abre-a para ouvir)")
