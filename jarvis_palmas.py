@@ -45,12 +45,21 @@ def abrir(*cmd: str) -> None:
         print(f"  (não encontrei '{cmd[0]}', ignorado)")
 
 
+def abrir_terminal() -> None:
+    # Fedora recente usa o Ptyxis; versões antigas usam o gnome-terminal
+    for cmd in (["ptyxis", "--new-window"], ["kgx"], ["gnome-terminal"], ["konsole"]):
+        if shutil.which(cmd[0]):
+            abrir(*cmd)
+            return
+    print("  (não encontrei nenhum terminal conhecido)")
+
+
 def modo_trabalho() -> None:
     hora = time.localtime().tm_hour
     saudacao = "Bom dia" if hora < 12 else "Boa tarde" if hora < 19 else "Boa noite"
     falar(f"{saudacao}, Admilson. A preparar o ambiente de trabalho.")
     abrir("code")
-    abrir("gnome-terminal")
+    abrir_terminal()
     abrir("xdg-open", "https://github.com/Admilson-Landim")
 
 
