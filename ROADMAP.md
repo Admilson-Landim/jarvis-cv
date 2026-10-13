@@ -50,7 +50,10 @@ Cada fase termina com algo que se pode testar no Fedora.
       Play Store para abrir as Definições Android escondidas; (3) `nmap -p- 192.168.88.16`
 - [x] Tentado: 10+ toques em "Versão do Firmware" (nada); `nmap -p-` com a TV no menu e com o
       YouTube aberto: todas as portas TCP fechadas
-- [ ] A tentar: Activity Launcher → Definições Android → 7 toques em "Número de compilação"
+- [x] Activity Launcher não existe na Play Store da TV (versão TV). Existe no F-Droid
+      (de.szalkowski.activitylauncher), mas a pen USB não foi reconhecida e o gestor de
+      ficheiros instalado não abriu. **Em pausa** — retomar com: APK pelo OPEN BROWSER da TV
+      (f-droid.org), outra pen USB (FAT32), ou plano C (infravermelhos)
 - [ ] Ativar depuração USB / sem fios na TV
 - [ ] Plano C se não houver ADB: emissor de infravermelhos (Wi-Fi/USB) a imitar o comando
 - [ ] `adb connect <IP da TV>:5555`, confirmar modelo e encontrar o pacote do YouTube
