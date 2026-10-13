@@ -17,14 +17,15 @@ Cada fase termina com algo que se pode testar no Fedora.
 - [x] Teste real: palmas → "abre YouTube" → abriu (Whisper small percebe bem)
 - [x] Bip depois de "Sim, Landim?" para saber quando falar
 
-## Fase 3 — Cérebro (LLM) (em teste)
+## Fase 3 — Cérebro (LLM) ✅ (base concluída)
 - [x] Gemini grátis (gemini-3.5-flash-lite), Claude como alternativa em config.py
 - [x] A IA devolve resposta + ações de uma lista fechada (nada de comandos livres)
 - [x] Comandos simples ficam locais; compostos/livres/desconhecidos vão à IA
 - [x] Memória curta da conversa (últimas mensagens)
 - [x] Teste real: "abre o YouTube e pesquisa algo interessante sobre IA", lo-fi, Amílcar Cabral, curiosidade CV
 - [x] Modelos de reserva + lembrar o modelo que funcionou + espera de 8 s por modelo
-- [ ] Testar a memória curta ("quem foi X?" → "e onde nasceu?")
+- [x] Memória curta testada ("quem foi Amílcar Cabral?" → "e onde é que ele nasceu?")
+- [x] Último modelo que funcionou fica gravado em .estado.json
 - [ ] "Bom dia, JARVIS": hora, tempo na Praia, notícias
 - [ ] Ações perigosas pedem confirmação
 

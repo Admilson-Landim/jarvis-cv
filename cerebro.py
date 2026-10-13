@@ -138,7 +138,24 @@ def _post(url: str, cabecalhos: dict, corpo: dict, timeout: float = 30) -> dict:
         return json.loads(r.read())
 
 
-ultimo_modelo = ""
+ESTADO = PASTA / ".estado.json"  # guarda o último modelo que funcionou (não vai para o git)
+
+
+def _ler_estado() -> dict:
+    try:
+        return json.loads(ESTADO.read_text())
+    except Exception:
+        return {}
+
+
+def _gravar_estado(**valores) -> None:
+    try:
+        ESTADO.write_text(json.dumps({**_ler_estado(), **valores}))
+    except OSError:
+        pass
+
+
+ultimo_modelo = _ler_estado().get("modelo", "")
 ERROS_FATAIS = (400, 401, 403)  # chave ou pedido inválido: outro modelo não resolve
 
 
@@ -175,6 +192,7 @@ def _gemini(historico: list) -> str:
             continue
         if modelo != ultimo_modelo:
             print(f"  (a usar {modelo})")
+            _gravar_estado(modelo=modelo)
         ultimo_modelo = modelo
         partes = dados["candidates"][0]["content"]["parts"]
         return "".join(p.get("text", "") for p in partes)

@@ -5,6 +5,13 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 import cerebro  # noqa: E402
+import pytest  # noqa: E402
+
+
+@pytest.fixture(autouse=True)
+def estado_temporario(tmp_path, monkeypatch):
+    monkeypatch.setattr(cerebro, "ESTADO", tmp_path / "estado.json")
+    monkeypatch.setattr(cerebro, "ultimo_modelo", "")
 import comandos  # noqa: E402
 from comandos import interpretar, precisa_do_cerebro  # noqa: E402
 
@@ -138,3 +145,14 @@ def test_gemini_comeca_pelo_ultimo_modelo_que_funcionou(monkeypatch):
     monkeypatch.setenv("GEMINI_API_KEY", "teste")
     cerebro.Cerebro().pensar("olá")
     assert tentados == ["gemini-3.1-flash-lite"]
+
+
+def test_modelo_que_funcionou_fica_gravado(monkeypatch):
+    def falso_post(url, cabecalhos, corpo, timeout=30):
+        return {"candidates": [{"content": {"parts": [{"text": '{"resposta": "ok", "acoes": []}'}]}}]}
+
+    monkeypatch.setattr(cerebro, "_post", falso_post)
+    monkeypatch.setattr(cerebro, "IA", "gemini")
+    monkeypatch.setenv("GEMINI_API_KEY", "teste")
+    cerebro.Cerebro().pensar("olá")
+    assert cerebro._ler_estado()["modelo"] == cerebro.MODELO_IA

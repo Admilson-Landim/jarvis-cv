@@ -5,3 +5,4 @@ venv/
 .env
 vozes/
 *.wav
+.estado.json
