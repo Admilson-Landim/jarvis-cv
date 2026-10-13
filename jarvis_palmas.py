@@ -23,7 +23,7 @@ import sounddevice as sd
 # --- Afinação ---------------------------------------------------------------
 TAXA = 44100          # amostras por segundo
 BLOCO = 1024          # ~23 ms por bloco
-LIMIAR = 0.35         # pico mínimo (0..1) para contar como palma -> afina com --calibrar
+LIMIAR = 0.45         # pico mínimo para contar como palma (calibrado: palmas ~0.56-0.61, voz <0.10)
 INTERVALO_MIN = 0.15  # s; picos mais próximos que isto = a mesma palma
 INTERVALO_MAX = 0.80  # s; distância máxima entre a 1ª e a 2ª palma
 PAUSA = 3.0           # s; tempo de espera depois de disparar
@@ -102,18 +102,20 @@ def main() -> None:
         print("Os sons fortes ficam registados. Ctrl+C para terminar.\n")
     else:
         print("JARVIS à escuta... (Ctrl+C para sair)")
-    with sd.InputStream(samplerate=TAXA, blocksize=BLOCO, channels=1, callback=callback):
-        try:
+    try:
+        with sd.InputStream(samplerate=TAXA, blocksize=BLOCO, channels=1, callback=callback):
             while True:
                 evento = eventos.get()
                 if evento == "duas_palmas":
                     print("👏👏 detetadas!")
                     modo_trabalho()
-        except KeyboardInterrupt:
-            if args.calibrar:
-                print(f"\n\nSom mais forte registado: {estado['maximo']:0.2f}")
-                print(f"LIMIAR atual: {LIMIAR}")
-            print("\nAté já, Admilson.")
+    except KeyboardInterrupt:
+        pass  # o microfone já foi fechado ao sair do "with"
+
+    if args.calibrar:
+        print(f"\n\nSom mais forte registado: {estado['maximo']:0.2f}")
+        print(f"LIMIAR atual: {LIMIAR}")
+    print("\nAté já, Admilson.")
 
 
 if __name__ == "__main__":

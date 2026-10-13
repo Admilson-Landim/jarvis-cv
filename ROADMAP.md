@@ -6,7 +6,8 @@ Cada fase termina com algo que se pode testar no Fedora.
 - [x] Deteção de duas palmas pelo microfone
 - [x] Saudação em voz consoante a hora
 - [x] Abrir VS Code, terminal e GitHub
-- [ ] Calibração confirmada no PC do Admilson
+- [x] Calibração confirmada no PC do Admilson (LIMIAR 0.45)
+- [ ] Teste real: duas palmas abrem o ambiente
 
 ## Fase 2 — Ouvir comandos em português
 - [ ] Depois das palmas, ficar à escuta de uma ordem (speech-to-text, ex.: Whisper)
