@@ -4,7 +4,8 @@ JARVIS - Fase 1: duas palmas -> abre o ambiente de trabalho e cumprimenta.
 
 Instalação no Fedora:
     sudo dnf install portaudio speech-dispatcher espeak-ng
-    pip install --user sounddevice numpy
+    pip install --user -r requirements.txt
+    python3 -m piper.download_voices pt_BR-faber-medium --data-dir vozes
 
 Uso:
     python3 jarvis_palmas.py --calibrar   # mostra o volume para afinar o LIMIAR
@@ -20,6 +21,9 @@ import time
 import numpy as np
 import sounddevice as sd
 
+import voz
+from voz import falar
+
 # --- Afinação ---------------------------------------------------------------
 TAXA = 44100          # amostras por segundo
 BLOCO = 1024          # ~23 ms por bloco
@@ -29,14 +33,6 @@ INTERVALO_MAX = 0.80  # s; distância máxima entre a 1ª e a 2ª palma
 PAUSA = 3.0           # s; tempo de espera depois de disparar
 
 # --- Ações ------------------------------------------------------------------
-def falar(texto: str) -> None:
-    if shutil.which("spd-say"):
-        subprocess.Popen(["spd-say", "-l", "pt", "-r", "-10", texto])
-    elif shutil.which("espeak-ng"):
-        subprocess.Popen(["espeak-ng", "-v", "pt", texto])
-    else:
-        print(f"[JARVIS] {texto}")
-
 
 def abrir(*cmd: str) -> None:
     if shutil.which(cmd[0]):
@@ -91,6 +87,9 @@ def main() -> None:
             return
 
         agora = time.monotonic()
+        if voz.a_falar.is_set():
+            estado["bloqueado_ate"] = agora + 0.5  # ignora o eco da própria voz
+            return
         if agora < estado["bloqueado_ate"] or pico < LIMIAR:
             return
         if agora - estado["ultimo_pico"] < INTERVALO_MIN:
@@ -110,6 +109,7 @@ def main() -> None:
         print("MODO CALIBRAÇÃO: bate palmas algumas vezes, depois fala normalmente.")
         print("Os sons fortes ficam registados. Ctrl+C para terminar.\n")
     else:
+        voz.preparar()
         print("JARVIS à escuta... (Ctrl+C para sair)")
     try:
         with sd.InputStream(samplerate=TAXA, blocksize=BLOCO, channels=1, callback=callback):

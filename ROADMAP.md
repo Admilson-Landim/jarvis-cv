@@ -12,7 +12,7 @@ Cada fase termina com algo que se pode testar no Fedora.
 ## Fase 2 — Ouvir comandos em português
 - [ ] Depois das palmas, ficar à escuta de uma ordem (speech-to-text, ex.: Whisper)
 - [ ] Comandos simples no PC: abrir/fechar apps, volume, bloquear ecrã
-- [ ] Voz mais natural (text-to-speech melhor que o espeak)
+- [ ] Voz mais natural: Piper pt_BR (faber) — em teste
 
 ## Fase 3 — Cérebro (LLM)
 - [ ] Mandar o pedido a um LLM, que decide a ação

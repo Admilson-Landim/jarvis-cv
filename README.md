@@ -15,6 +15,19 @@ sudo dnf install portaudio speech-dispatcher espeak-ng
 pip install --user -r requirements.txt
 ```
 
+### Voz brasileira (Piper)
+
+Voz neural, gratuita e offline. Descarrega uma vez (~60 MB):
+
+```bash
+python3 -m piper.download_voices pt_BR-faber-medium --data-dir vozes
+python3 voz.py                       # ouve a voz
+python3 voz.py "Qualquer frase"      # testa uma frase tua
+```
+
+Sem a voz descarregada, o JARVIS usa o espeak (robótico) como reserva.
+Para trocar de voz, muda `VOZ` no topo de `voz.py`.
+
 ### Calibrar o microfone (faz isto primeiro)
 
 ```bash
