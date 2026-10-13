@@ -3,7 +3,37 @@
 Assistente pessoal ao estilo JARVIS, feito em Cabo Verde, a correr no **Fedora**.
 Objetivo: um assistente que ouve, fala em **português (e um dia em crioulo)** e age no mundo real: PC, Smart TV, telemóvel.
 
-## Estado atual — Fase 1: duas palmas 👏👏
+## Estado atual — Fase 2: comandos de voz 🎙️
+
+Duas palmas → o JARVIS diz *"Sim, Landim?"* → dizes uma ordem → ele executa.
+
+```bash
+pip install --user -r requirements.txt
+python3 jarvis.py              # palmas + voz
+python3 jarvis.py --escrever   # testar os comandos escrevendo no teclado
+python3 ouvido.py              # testar só o reconhecimento de voz (4 s)
+```
+
+Na primeira vez descarrega o modelo Whisper (~480 MB). Se for lento,
+troca `MODELO_WHISPER` para `"base"` em `config.py`.
+
+**Comandos que já percebe**
+
+| Diz… | Faz |
+|---|---|
+| "abre o YouTube / GitHub / Gmail / WhatsApp / Google" | abre o site |
+| "abre o VS Code / terminal / navegador / ficheiros" | abre a aplicação |
+| "aumenta / baixa o volume", "silêncio" | controla o som |
+| "bloqueia o ecrã" | bloqueia o PC |
+| "que horas são", "que dia é hoje" | responde em voz |
+| "pesquisa por …" | pesquisa no Google |
+| "modo trabalho" | VS Code + terminal + GitHub |
+| "obrigado", "quem és tu" | conversa |
+| "desliga", "adeus" | encerra o JARVIS |
+
+Os comandos estão em `comandos.py`; os testes em `tests/` (`python3 -m pytest tests`).
+
+## Fase 1: duas palmas 👏👏
 
 Bates duas palmas e o JARVIS cumprimenta-te em voz e abre o ambiente de trabalho
 (VS Code, terminal e GitHub).

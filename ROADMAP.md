@@ -9,10 +9,12 @@ Cada fase termina com algo que se pode testar no Fedora.
 - [x] Calibração confirmada no PC do Admilson (LIMIAR 0.45)
 - [x] Teste real: duas palmas abrem o ambiente (1 palma não dispara)
 
-## Fase 2 — Ouvir comandos em português
-- [ ] Depois das palmas, ficar à escuta de uma ordem (speech-to-text, ex.: Whisper)
-- [ ] Comandos simples no PC: abrir/fechar apps, volume, bloquear ecrã
-- [ ] Voz mais natural: Piper pt_BR (faber) — em teste
+## Fase 2 — Ouvir comandos em português (em teste)
+- [x] Voz natural: Piper pt_BR (faber) — aprovada pelo Landim
+- [x] Depois das palmas, "Sim, Landim?" e escuta da ordem (Whisper offline)
+- [x] Comandos: abrir sites/apps, volume, bloquear ecrã, horas/data, pesquisa, modo trabalho
+- [x] Modo `--escrever` e testes automáticos dos comandos
+- [ ] Teste real no PC do Landim (reconhecimento e afinação do LIMIAR_VOZ)
 
 ## Fase 3 — Cérebro (LLM)
 - [ ] Mandar o pedido a um LLM, que decide a ação
