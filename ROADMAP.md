@@ -40,7 +40,8 @@ Cada fase termina com algo que se pode testar no Fedora.
 - [x] IA gratuita instável: "Um momento" se demorar, última tentativa, e plano B local
 
 ## Fase 4 — Smart TV (TOP VISION)
-- [ ] Descobrir o sistema da TV e como controlá-la pela rede
+- [x] `descobrir_tv.py`: procura TVs (SSDP/UPnP) e testa portas de controlo conhecidas
+- [ ] Descobrir o sistema da TV TOP VISION (definições + detetive)
 - [ ] Palmas → ligar a TV / abrir YouTube; volume por voz
 
 ## Fase 5 — Extras
