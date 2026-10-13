@@ -55,20 +55,72 @@ Regras:
 
 
 # --- Chaves ------------------------------------------------------------------
-def _carregar_env() -> None:
+def _ler_env() -> list:
+    """Devolve [(nome, valor, nº da linha)] do .env, limpando espaços e aspas."""
     env = PASTA / ".env"
     if not env.exists():
-        return
-    for linha in env.read_text().splitlines():
-        linha = linha.strip()
+        return []
+    entradas = []
+    texto = env.read_text(encoding="utf-8-sig")  # ignora BOM invisível
+    for n, linha in enumerate(texto.splitlines(), 1):
+        linha = linha.strip().removeprefix("export ").strip()
         if linha and not linha.startswith("#") and "=" in linha:
             chave, valor = linha.split("=", 1)
-            os.environ.setdefault(chave.strip(), valor.strip().strip('"').strip("'"))
+            limpo = "".join(c for c in valor if 33 <= ord(c) <= 126).strip('"').strip("'")
+            sujo = len(limpo) != len(valor.strip().strip('"').strip("'"))  # havia espaços/invisíveis
+            entradas.append((chave.strip(), limpo, n, sujo))
+    return entradas
+
+
+def _carregar_env() -> None:
+    # O .env manda: a última linha válida de cada chave ganha
+    for chave, valor, _, _ in _ler_env():
+        if valor and "cola_aqui" not in valor:
+            os.environ[chave] = valor
 
 
 _carregar_env()
 
 NOME_CHAVE = {"gemini": "GEMINI_API_KEY", "claude": "ANTHROPIC_API_KEY"}
+
+
+def _mascarar(valor: str) -> str:
+    return f"{valor[:4]}…{valor[-4:]} ({len(valor)} caracteres)" if len(valor) > 10 else "(curta demais)"
+
+
+def verificar() -> None:
+    """Diagnóstico da chave sem a mostrar inteira."""
+    nome = NOME_CHAVE[IA]
+    print(f"IA: {IA} | modelo: {MODELO_IA} | chave esperada: {nome}")
+    if not (PASTA / ".env").exists():
+        print("❌ Não existe ficheiro .env nesta pasta.")
+        return
+    linhas = [(v, n, sujo) for c, v, n, sujo in _ler_env() if c == nome]
+    if not linhas:
+        print(f"❌ O .env não tem nenhuma linha {nome}=...")
+        return
+    for valor, n, sujo in linhas:
+        aviso = "  ⚠️ ainda é o texto de exemplo" if "cola_aqui" in valor else ""
+        if sujo:
+            aviso += "  (tinha espaços ou caracteres invisíveis — já os ignoro)"
+        print(f"  linha {n}: {_mascarar(valor)}{aviso}")
+    if len(linhas) > 1:
+        print("⚠️ Há mais do que uma linha com a chave; vale a última válida. Melhor deixar só uma.")
+    usada = os.environ.get(nome, "")
+    print(f"→ chave em uso: {_mascarar(usada) if usada else 'nenhuma'}")
+    if not usada:
+        return
+    try:
+        _post(
+            f"https://generativelanguage.googleapis.com/v1beta/models/{MODELO_IA}:generateContent",
+            {"x-goog-api-key": usada},
+            {"contents": [{"role": "user", "parts": [{"text": "Responde só: ok"}]}]},
+        ) if IA == "gemini" else _claude([{"role": "user", "content": "Responde só: ok"}])
+        print("✅ A IA aceitou a chave. Está tudo pronto!")
+    except urllib.error.HTTPError as erro:
+        print(f"❌ A IA respondeu com erro {erro.code}: {erro.read().decode(errors='ignore')[:300]}")
+    except Exception as erro:
+        print(f"❌ Não consegui contactar a IA: {erro}")
 
 
 def disponivel() -> bool:
@@ -163,6 +215,9 @@ class Cerebro:
 
 if __name__ == "__main__":
     import sys
+    if sys.argv[1:] == ["--verificar"]:
+        verificar()
+        sys.exit(0)
     if not disponivel():
         print(f"Falta a chave {NOME_CHAVE[IA]} no ficheiro .env")
         sys.exit(1)

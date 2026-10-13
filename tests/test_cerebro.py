@@ -76,3 +76,14 @@ def test_gemini_formato_do_pedido(monkeypatch):
     # a segunda pergunta leva o histórico
     c.pensar("e tu?")
     assert [m["role"] for m in enviado["corpo"]["contents"]] == ["user", "model", "user"]
+
+
+def test_ler_env_limpa_invisiveis_e_ignora_exemplo(tmp_path, monkeypatch):
+    (tmp_path / ".env").write_text(
+        'GEMINI_API_KEY=cola_aqui_a_tua_chave\nexport GEMINI_API_KEY = "AQ.abc 123​"\n',
+        encoding="utf-8")
+    monkeypatch.setattr(cerebro, "PASTA", tmp_path)
+    monkeypatch.delenv("GEMINI_API_KEY", raising=False)
+    cerebro._carregar_env()
+    import os
+    assert os.environ["GEMINI_API_KEY"] == "AQ.abc123"

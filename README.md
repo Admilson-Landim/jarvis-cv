@@ -20,6 +20,7 @@ Comandos simples continuam a ser resolvidos localmente, sem internet.
    O `.env` nunca vai para o GitHub.
 3. Testa só o cérebro:
    ```bash
+   python3 cerebro.py --verificar   # diagnostica a chave (sem a mostrar)
    python3 cerebro.py "abre o youtube e pesquisa algo interessante sobre IA"
    ```
 
