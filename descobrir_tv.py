@@ -4,12 +4,14 @@ Detetive de TVs: procura dispositivos na rede (SSDP/UPnP) e testa as portas
 de controlo conhecidas, para sabermos como falar com a TV.
 
 Uso (com a TV ligada e na mesma rede Wi-Fi do PC):
-    python3 descobrir_tv.py
+    python3 descobrir_tv.py                   # procura por UPnP e, se falhar, varre a rede
+    python3 descobrir_tv.py --varrer          # varre todos os endereços da rede (~20 s)
     python3 descobrir_tv.py 192.168.88.50     # se já souberes o IP da TV
 """
 
 import re
 import socket
+import subprocess
 import sys
 import urllib.request
 from concurrent.futures import ThreadPoolExecutor
@@ -125,16 +127,80 @@ def analisar_ip(ip: str, respostas: list) -> None:
     print(f"   palpite: {palpite(portas, texto_total)}")
 
 
+def meu_ip() -> str:
+    """IP do PC na rede local (não envia nada, só pergunta ao sistema a rota)."""
+    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    try:
+        s.connect(("8.8.8.8", 80))
+        return s.getsockname()[0]
+    finally:
+        s.close()
+
+
+def responde_ping(ip: str) -> bool:
+    return subprocess.run(["ping", "-c", "1", "-W", "1", ip],
+                          stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL).returncode == 0
+
+
+def tabela_arp() -> dict:
+    """{ip: mac} dos aparelhos que o PC viu na rede."""
+    try:
+        saida = subprocess.run(["ip", "neigh"], capture_output=True, text=True).stdout
+    except FileNotFoundError:
+        return {}
+    macs = {}
+    for linha in saida.splitlines():
+        m = re.match(r"(\d+\.\d+\.\d+\.\d+) .*lladdr ([0-9a-f:]{17})", linha)
+        if m:
+            macs[m.group(1)] = m.group(2)
+    return macs
+
+
+def varrer_rede() -> None:
+    eu = meu_ip()
+    base = eu.rsplit(".", 1)[0]
+    alvos = [f"{base}.{i}" for i in range(1, 255) if f"{base}.{i}" != eu]
+    print(f"O teu PC é {eu}. A varrer {base}.1 a {base}.254 (uns 20 segundos)...")
+
+    def sondar(ip):
+        portas = portas_abertas(ip)
+        if portas or responde_ping(ip):
+            return ip, portas
+        return None
+
+    with ThreadPoolExecutor(max_workers=64) as ex:
+        vivos = [r for r in ex.map(sondar, alvos) if r]
+    macs = tabela_arp()
+    if not vivos and not macs:
+        print("Nenhum aparelho respondeu. O router pode estar a isolar os aparelhos Wi-Fi.")
+        return
+    vistos = {ip for ip, _ in vivos} | set(macs)
+    print(f"Encontrei {len(vistos)} aparelho(s):")
+    for ip in sorted(vistos, key=lambda x: int(x.rsplit(".", 1)[1])):
+        portas = dict(vivos).get(ip) or portas_abertas(ip)
+        print(f"\n📍 {ip}   mac: {macs.get(ip, '?')}")
+        for p in portas:
+            print(f"   porta {p} aberta → {PORTAS[p]}")
+        if portas:
+            print(f"   palpite: {palpite(portas, '')}")
+    print("\nDica: a TV costuma ser a que tem portas como 5555, 6466, 8008/8009 ou 7676.")
+    print("Se nenhuma tiver portas, desliga a TV e corre outra vez: a que desaparecer é ela.")
+
+
 def main() -> None:
-    if len(sys.argv) > 1:
-        for ip in sys.argv[1:]:
+    args = sys.argv[1:]
+    if args == ["--varrer"]:
+        varrer_rede()
+        return
+    if args:
+        for ip in args:
             analisar_ip(ip, [])
         return
     print("A procurar dispositivos na rede (3 segundos)...")
     encontrados = ssdp_procurar()
     if not encontrados:
-        print("Ninguém respondeu. Confirma que a TV está ligada e na mesma rede Wi-Fi.")
-        print("Se souberes o IP da TV (Definições → Rede), corre: python3 descobrir_tv.py <IP>")
+        print("Ninguém respondeu por UPnP. Vou varrer a rede endereço a endereço.\n")
+        varrer_rede()
         return
     print(f"Encontrei {len(encontrados)} dispositivo(s). A analisar...")
     for ip, respostas in sorted(encontrados.items()):
