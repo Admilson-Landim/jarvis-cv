@@ -18,7 +18,7 @@ import urllib.error
 import urllib.request
 from pathlib import Path
 
-from config import IA, MODELO_IA, NOME
+from config import IA, MODELO_IA, MODELOS_RESERVA, NOME
 
 PASTA = Path(__file__).parent
 
@@ -111,12 +111,9 @@ def verificar() -> None:
     if not usada:
         return
     try:
-        _post(
-            f"https://generativelanguage.googleapis.com/v1beta/models/{MODELO_IA}:generateContent",
-            {"x-goog-api-key": usada},
-            {"contents": [{"role": "user", "parts": [{"text": "Responde só: ok"}]}]},
-        ) if IA == "gemini" else _claude([{"role": "user", "content": "Responde só: ok"}])
-        print("✅ A IA aceitou a chave. Está tudo pronto!")
+        resposta = PROVEDORES[IA]([{"role": "user", "content": "Diz olá numa frase curta."}])
+        print(f"✅ A IA aceitou a chave (modelo usado: {ultimo_modelo}). Está tudo pronto!")
+        print(f"   resposta: {analisar(resposta)['resposta']}")
     except urllib.error.HTTPError as erro:
         print(f"❌ A IA respondeu com erro {erro.code}: {erro.read().decode(errors='ignore')[:300]}")
     except Exception as erro:
@@ -133,24 +130,46 @@ def _post(url: str, cabecalhos: dict, corpo: dict) -> dict:
         url, data=json.dumps(corpo).encode(), method="POST",
         headers={"Content-Type": "application/json", **cabecalhos},
     )
-    with urllib.request.urlopen(pedido, timeout=20) as r:
+    with urllib.request.urlopen(pedido, timeout=30) as r:
         return json.loads(r.read())
 
 
+ultimo_modelo = ""
+ERROS_FATAIS = (400, 401, 403)  # chave ou pedido inválido: outro modelo não resolve
+
+
 def _gemini(historico: list) -> str:
+    global ultimo_modelo
     contents = [{"role": "model" if m["role"] == "assistant" else "user",
                  "parts": [{"text": m["content"]}]} for m in historico]
-    dados = _post(
-        f"https://generativelanguage.googleapis.com/v1beta/models/{MODELO_IA}:generateContent",
-        {"x-goog-api-key": os.environ["GEMINI_API_KEY"]},
-        {
-            "systemInstruction": {"parts": [{"text": _instrucoes()}]},
-            "contents": contents,
-            "generationConfig": {"responseMimeType": "application/json", "temperature": 0.7},
-        },
-    )
-    partes = dados["candidates"][0]["content"]["parts"]
-    return "".join(p.get("text", "") for p in partes)
+    corpo = {
+        "systemInstruction": {"parts": [{"text": _instrucoes()}]},
+        "contents": contents,
+        "generationConfig": {"responseMimeType": "application/json", "temperature": 0.7},
+    }
+    modelos = [MODELO_IA] + [m for m in MODELOS_RESERVA if m != MODELO_IA]
+    ultimo_erro = None
+    for modelo in modelos:
+        try:
+            dados = _post(
+                f"https://generativelanguage.googleapis.com/v1beta/models/{modelo}:generateContent",
+                {"x-goog-api-key": os.environ["GEMINI_API_KEY"]},
+                corpo,
+            )
+        except urllib.error.HTTPError as erro:
+            if erro.code in ERROS_FATAIS:
+                raise
+            print(f"  ({modelo} indisponível ({erro.code}), a tentar outro...)")
+            ultimo_erro = erro
+            continue
+        except (TimeoutError, urllib.error.URLError) as erro:
+            print(f"  ({modelo} não respondeu a tempo, a tentar outro...)")
+            ultimo_erro = erro
+            continue
+        ultimo_modelo = modelo
+        partes = dados["candidates"][0]["content"]["parts"]
+        return "".join(p.get("text", "") for p in partes)
+    raise ultimo_erro
 
 
 def _claude(historico: list) -> str:
@@ -202,6 +221,8 @@ class Cerebro:
             self.historico.pop()
             if erro.code == 429:
                 return {"resposta": "Atingi o limite gratuito da IA. Tenta daqui a pouco.", "acoes": []}
+            if erro.code >= 500 or erro.code == 404:
+                return {"resposta": "Os servidores da IA estão ocupados. Tenta daqui a pouco.", "acoes": []}
             return {"resposta": "A IA recusou o pedido. Vê a mensagem no terminal.", "acoes": []}
         except Exception as erro:
             print(f"  (sem ligação à IA: {erro})")

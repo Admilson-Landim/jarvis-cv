@@ -87,3 +87,39 @@ def test_ler_env_limpa_invisiveis_e_ignora_exemplo(tmp_path, monkeypatch):
     cerebro._carregar_env()
     import os
     assert os.environ["GEMINI_API_KEY"] == "AQ.abc123"
+
+
+def test_gemini_tenta_outro_modelo_quando_ocupado(monkeypatch):
+    import io
+    import urllib.error
+    tentados = []
+
+    def falso_post(url, cabecalhos, corpo):
+        modelo = url.split("/models/")[1].split(":")[0]
+        tentados.append(modelo)
+        if len(tentados) < 3:
+            codigo = 503 if len(tentados) == 1 else 404
+            raise urllib.error.HTTPError(url, codigo, "x", {}, io.BytesIO(b"{}"))
+        return {"candidates": [{"content": {"parts": [{"text": '{"resposta": "ok", "acoes": []}'}]}}]}
+
+    monkeypatch.setattr(cerebro, "_post", falso_post)
+    monkeypatch.setattr(cerebro, "IA", "gemini")
+    monkeypatch.setenv("GEMINI_API_KEY", "teste")
+    assert cerebro.Cerebro().pensar("olá")["resposta"] == "ok"
+    assert len(tentados) == 3 and cerebro.ultimo_modelo == tentados[2]
+
+
+def test_gemini_chave_invalida_nao_insiste(monkeypatch):
+    import io
+    import urllib.error
+    tentados = []
+
+    def falso_post(url, cabecalhos, corpo):
+        tentados.append(url)
+        raise urllib.error.HTTPError(url, 400, "x", {}, io.BytesIO(b"API key not valid"))
+
+    monkeypatch.setattr(cerebro, "_post", falso_post)
+    monkeypatch.setattr(cerebro, "IA", "gemini")
+    monkeypatch.setenv("GEMINI_API_KEY", "teste")
+    assert "recusou" in cerebro.Cerebro().pensar("olá")["resposta"]
+    assert len(tentados) == 1
