@@ -156,3 +156,15 @@ def test_modelo_que_funcionou_fica_gravado(monkeypatch):
     monkeypatch.setenv("GEMINI_API_KEY", "teste")
     cerebro.Cerebro().pensar("olá")
     assert cerebro._ler_estado()["modelo"] == cerebro.MODELO_IA
+
+
+def test_conversao_para_16k():
+    import numpy as np
+    import ouvido
+    t48 = np.arange(48000) / 48000
+    onda = np.sin(2 * np.pi * 440 * t48).astype(np.float32)
+    convertido = ouvido.para_16k(onda, 48000)
+    assert convertido.size == 16000 and convertido.dtype == np.float32
+    t16 = np.arange(16000) / 16000
+    assert np.corrcoef(convertido, np.sin(2 * np.pi * 440 * t16))[0, 1] > 0.98
+    assert ouvido.para_16k(onda[:44100], 44100).size == 16000

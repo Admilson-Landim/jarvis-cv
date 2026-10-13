@@ -26,8 +26,8 @@ from config import NOME
 from voz import falar
 
 # --- Afinação ---------------------------------------------------------------
-TAXA = 44100          # amostras por segundo
-BLOCO = 1024          # ~23 ms por bloco
+TAXA = 48000          # amostras por segundo (igual no jarvis.py, para a calibração valer lá)
+BLOCO = 1024          # ~21 ms por bloco
 LIMIAR = 0.45         # pico mínimo para contar como palma (calibrado: palmas ~0.56-0.61, voz <0.10)
 INTERVALO_MIN = 0.15  # s; picos mais próximos que isto = a mesma palma
 INTERVALO_MAX = 0.80  # s; distância máxima entre a 1ª e a 2ª palma

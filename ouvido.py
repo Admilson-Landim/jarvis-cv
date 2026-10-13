@@ -29,6 +29,19 @@ def preparar() -> None:
         print("  Whisper pronto.")
 
 
+def para_16k(audio: np.ndarray, taxa_origem: int) -> np.ndarray:
+    """Converte para 16 kHz. Para 48 kHz faz a média de cada 3 amostras (filtra e reduz)."""
+    if taxa_origem == TAXA:
+        return audio.astype(np.float32)
+    fator = taxa_origem // TAXA
+    if taxa_origem % TAXA == 0:
+        n = audio.size // fator * fator
+        return audio[:n].reshape(-1, fator).mean(axis=1).astype(np.float32)
+    # taxa não múltipla (ex.: 44100): interpolação linear
+    x_novo = np.linspace(0, audio.size - 1, int(audio.size * TAXA / taxa_origem))
+    return np.interp(x_novo, np.arange(audio.size), audio).astype(np.float32)
+
+
 def transcrever(audio: np.ndarray) -> str:
     """audio: float32 mono a 16 kHz, valores entre -1 e 1."""
     preparar()

@@ -22,10 +22,10 @@ import resumo
 import voz
 from comandos import executar_acao, interpretar, precisa_do_cerebro
 from config import DURACAO_MAX, ESPERA_MAX, IA, LIMIAR_VOZ, NOME, SILENCIO_FIM
-from jarvis_palmas import INTERVALO_MAX, INTERVALO_MIN, LIMIAR
+from jarvis_palmas import INTERVALO_MAX, INTERVALO_MIN, LIMIAR, TAXA as TAXA_MIC
 
-TAXA = ouvido.TAXA   # 16 kHz serve para as palmas e para o Whisper
-BLOCO = 512          # ~32 ms
+TAXA = TAXA_MIC      # o microfone é lido em alta qualidade (as palmas precisam)
+BLOCO = 1536         # ~32 ms a 48 kHz
 
 CEREBRO = cerebro.Cerebro() if cerebro.disponivel() else None
 
@@ -157,7 +157,7 @@ def modo_voz() -> None:
                     print("  🔊 bip — a ouvir...")
 
                 elif tipo == "audio":
-                    texto = ouvido.transcrever(dados) if dados.size else ""
+                    texto = ouvido.transcrever(ouvido.para_16k(dados, TAXA)) if dados.size else ""
                     print(f"  ouvi: {texto!r}")
                     if not tratar(texto):
                         return  # o JARVIS já se despediu
