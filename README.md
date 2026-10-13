@@ -50,6 +50,7 @@ troca `MODELO_WHISPER` para `"base"` em `config.py`.
 | "abre o VS Code / terminal / navegador / ficheiros" | abre a aplicação |
 | "aumenta / baixa o volume", "silêncio" | controla o som |
 | "bloqueia o ecrã" | bloqueia o PC |
+| "bom dia" / "boa tarde" / "resumo do dia" | ☀️ resumo: data, tempo na Praia e dica do dia |
 | "que horas são", "que dia é hoje" | responde em voz |
 | "pesquisa por …" | pesquisa no Google |
 | "modo trabalho" | VS Code + terminal + GitHub |

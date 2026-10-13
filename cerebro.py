@@ -260,6 +260,21 @@ class Cerebro:
         self.historico.append({"role": "assistant", "content": json.dumps(resultado, ensure_ascii=False)})
         return resultado
 
+    def escrever(self, pedido: str) -> str:
+        """Pedido avulso (fora da conversa), só texto. Devolve "" se falhar."""
+        try:
+            bruto = PROVEDORES[IA]([{"role": "user", "content": pedido}])
+        except Exception as erro:
+            print(f"  (IA indisponível: {erro})")
+            return ""
+        texto = analisar(bruto)["resposta"]
+        # fica na memória, para poderes perguntar algo sobre o resumo a seguir
+        self.historico += [{"role": "user", "content": "Bom dia, JARVIS."},
+                           {"role": "assistant", "content": json.dumps({"resposta": texto, "acoes": []},
+                                                                       ensure_ascii=False)}]
+        self.historico = self.historico[-self.memoria:]
+        return texto
+
 
 if __name__ == "__main__":
     import sys

@@ -2,6 +2,11 @@
 
 NOME = "Landim"   # como o JARVIS te chama
 
+# Onde estás (para o tempo no "Bom dia, JARVIS")
+CIDADE = "Praia"
+LATITUDE, LONGITUDE = 14.93, -23.51
+FUSO_HORARIO = "Atlantic/Cape_Verde"
+
 # Navegador para abrir sites ("brave-browser", "firefox"...). None = o padrão do sistema
 NAVEGADOR = "brave-browser"
 

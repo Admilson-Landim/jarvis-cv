@@ -26,7 +26,8 @@ Cada fase termina com algo que se pode testar no Fedora.
 - [x] Modelos de reserva + lembrar o modelo que funcionou + espera de 8 s por modelo
 - [x] Memória curta testada ("quem foi Amílcar Cabral?" → "e onde é que ele nasceu?")
 - [x] Último modelo que funcionou fica gravado em .estado.json
-- [ ] "Bom dia, JARVIS": hora, tempo na Praia, notícias
+- [x] "Bom dia, JARVIS": data, hora, tempo na Praia (Open-Meteo) e dica do dia pela IA
+- [ ] Teste real do "Bom dia, JARVIS" no PC do Landim
 - [ ] Ações perigosas pedem confirmação
 
 ## Fase 4 — Smart TV (TOP VISION)

@@ -18,6 +18,7 @@ import sounddevice as sd
 
 import cerebro
 import ouvido
+import resumo
 import voz
 from comandos import executar_acao, interpretar, precisa_do_cerebro
 from config import DURACAO_MAX, ESPERA_MAX, IA, LIMIAR_VOZ, NOME, SILENCIO_FIM
@@ -32,6 +33,13 @@ CEREBRO = cerebro.Cerebro() if cerebro.disponivel() else None
 def tratar(texto: str) -> bool:
     """Interpreta e executa. Devolve False se for para sair."""
     cmd = interpretar(texto)
+
+    if cmd.nome == "bom_dia":
+        print("  -> ☀️ resumo do dia")
+        texto_resumo = resumo.gerar(CEREBRO)
+        print(f"  JARVIS: {texto_resumo}")
+        voz.falar(texto_resumo, esperar=True)
+        return True
 
     if CEREBRO and precisa_do_cerebro(texto, cmd):
         print("  -> 🧠 a pensar...")

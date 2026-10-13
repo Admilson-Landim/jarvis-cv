@@ -94,6 +94,13 @@ def _cmd_sair(t: str) -> Optional[Comando]:
     return None
 
 
+def _cmd_bom_dia(t: str) -> Optional[Comando]:
+    # A resposta é gerada no jarvis.py (precisa do tempo e, se houver, da IA)
+    if _tem(t, "bom dia", "boa tarde", "boa noite", "resumo do dia", "como esta o dia"):
+        return Comando("bom_dia", "")
+    return None
+
+
 def _cmd_pesquisar(t: str) -> Optional[Comando]:
     m = re.search(r"\b(?:pesquisa|pesquisar|procura|procurar|busca|buscar)\b(?: por| sobre)? (.+)", t)
     if m:
@@ -167,7 +174,7 @@ def _cmd_conversa(t: str) -> Optional[Comando]:
     return None
 
 
-REGRAS = [_cmd_sair, _cmd_pesquisar, _cmd_volume, _cmd_bloquear, _cmd_horas,
+REGRAS = [_cmd_sair, _cmd_bom_dia, _cmd_pesquisar, _cmd_volume, _cmd_bloquear, _cmd_horas,
           _cmd_trabalho, _cmd_abrir, _cmd_conversa]
 
 
