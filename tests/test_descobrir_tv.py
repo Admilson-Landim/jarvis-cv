@@ -43,12 +43,14 @@ def test_varrer_rede_encontra_a_tv(monkeypatch, capsys):
     monkeypatch.setattr(d, "meu_ip", lambda: "192.168.88.20")
     monkeypatch.setattr(d, "portas_abertas", lambda ip: [5555, 8009] if ip == "192.168.88.50" else [])
     monkeypatch.setattr(d, "responde_ping", lambda ip: ip in ("192.168.88.1", "192.168.88.50"))
-    monkeypatch.setattr(d, "tabela_arp", lambda: {"192.168.88.1": "48:a9:8a:00:00:01"})
+    monkeypatch.setattr(d, "tabela_arp", lambda: {"192.168.88.1": "48:a9:8a:00:00:01",
+                                                  "172.18.0.2": "1e:b2:cb:55:2e:93"})
     d.varrer_rede()
     saida = capsys.readouterr().out
     assert "Encontrei 2 aparelho(s)" in saida
     assert "192.168.88.50" in saida and "porta 5555" in saida and "Android TV" in saida
     assert "48:a9:8a:00:00:01" in saida
+    assert "172.18.0.2" not in saida  # contentores Docker ficam de fora
 
 
 def test_tabela_arp(monkeypatch):

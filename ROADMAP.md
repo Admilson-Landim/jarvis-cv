@@ -41,7 +41,8 @@ Cada fase termina com algo que se pode testar no Fedora.
 
 ## Fase 4 — Smart TV (TOP VISION)
 - [x] `descobrir_tv.py`: procura TVs (SSDP/UPnP) e testa portas de controlo conhecidas
-- [ ] Descobrir o sistema da TV TOP VISION (definições + detetive)
+- [x] TV TOP VISION encontrada: Android (com Play Store) em 192.168.88.19, ADB na porta 5555
+- [ ] Ligar por ADB e confirmar modelo/versão do Android
 - [ ] Palmas → ligar a TV / abrir YouTube; volume por voz
 
 ## Fase 5 — Extras

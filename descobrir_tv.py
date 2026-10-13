@@ -174,7 +174,8 @@ def varrer_rede() -> None:
     if not vivos and not macs:
         print("Nenhum aparelho respondeu. O router pode estar a isolar os aparelhos Wi-Fi.")
         return
-    vistos = {ip for ip, _ in vivos} | set(macs)
+    # só a rede de casa (fora ficam, por exemplo, os contentores Docker 172.x)
+    vistos = {ip for ip, _ in vivos} | {ip for ip in macs if ip.startswith(base + ".")}
     print(f"Encontrei {len(vistos)} aparelho(s):")
     for ip in sorted(vistos, key=lambda x: int(x.rsplit(".", 1)[1])):
         portas = dict(vivos).get(ip) or portas_abertas(ip)
