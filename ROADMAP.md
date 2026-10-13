@@ -48,7 +48,11 @@ Cada fase termina com algo que se pode testar no Fedora.
 - [ ] **Retomar aqui:** o menu da TV não mostra Opções de programador. Tentar: (1) 7 toques em
       "Versão do Firmware"/"Versão Android" em Info do sistema; (2) app "Activity Launcher" da
       Play Store para abrir as Definições Android escondidas; (3) `nmap -p- 192.168.88.16`
+- [x] Tentado: 10+ toques em "Versão do Firmware" (nada); `nmap -p-` com a TV no menu e com o
+      YouTube aberto: todas as portas TCP fechadas
+- [ ] A tentar: Activity Launcher → Definições Android → 7 toques em "Número de compilação"
 - [ ] Ativar depuração USB / sem fios na TV
+- [ ] Plano C se não houver ADB: emissor de infravermelhos (Wi-Fi/USB) a imitar o comando
 - [ ] `adb connect <IP da TV>:5555`, confirmar modelo e encontrar o pacote do YouTube
 - [ ] Palmas → ligar a TV / abrir YouTube; volume por voz
 
